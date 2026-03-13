@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  api:
+    build: .
+    container_name: finance_app_api
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      # Note que aqui não é localhost, é "db", o nome do serviço abaixo!
+      - MONGO_URI=mongodb://db:27017/finance-app
+      - JWT_SECRET=finance_app_secret_key_2026_!@#
+    depends_on:
+      - db
+    restart: always
+
+  db:
+    image: mongo:latest
+    container_name: finance_app_db
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    restart: always
+
+volumes:
+  mongodb_data:
