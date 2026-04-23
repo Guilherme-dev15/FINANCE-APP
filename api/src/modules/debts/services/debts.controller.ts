@@ -1,3 +1,15 @@
+
+
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+
+
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+
+
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+
 import { Controller, Post, Get, Body, Request, UseGuards, Put, Param, Delete, HttpException, HttpStatus, Query, Patch } from '@nestjs/common';
 import { DebtsService } from './debts.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -18,7 +30,7 @@ function validateUserId(req: any): string {
 }
 
 @ApiTags('Dívidas')
-@ApiBearerAuth()
+@ApiBearerAuth('JWT-auth')
 @Controller('debts')
 @UseGuards(AuthGuard('jwt')) // Protege todas as rotas com JWT
 
@@ -41,11 +53,16 @@ export class DebtsController {
             this.logger.log('Dívida criada com sucesso');  // Log de sucesso
             return result;
         } catch (error) {
-            this.logger.error('Erro ao criar dívida', error.stack);  // Log de erro
-            throw new HttpException(error.message || 'Failed to create debt', HttpStatus.INTERNAL_SERVER_ERROR);
+            const errorStack = error instanceof Error ? error.stack : 'Unknown error';
+            this.logger.error('Erro ao criar dívida', errorStack);  // Log de erro
+            const errorMessage = error instanceof Error ? error.message : 'Failed to create debt';
+            throw new HttpException(errorMessage || 'Failed to create debt', HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
+    @Get('prioritized')
+    async getPrioritized() {
+        return this.debtsService.findAllPrioritized();
+    }
     @Get()
     @ApiOperation({ summary: 'Listar dívidas' })
     @ApiResponse({ status: 200, description: 'Listagem de dívidas' })
@@ -55,7 +72,8 @@ export class DebtsController {
         try {
             return await this.debtsService.listDebts(userId, status);
         } catch (error) {
-            throw new HttpException(error.message || 'Failed to list debts', HttpStatus.INTERNAL_SERVER_ERROR);
+            const errorMessage = error instanceof Error ? error.message : 'Failed to list debts';
+            throw new HttpException(errorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -68,7 +86,8 @@ export class DebtsController {
         try {
             return await this.debtsService.editDebt(userId, debtId, debtData);
         } catch (error) {
-            throw new HttpException(error.message || 'Failed to edit debt', HttpStatus.INTERNAL_SERVER_ERROR);
+            const errorMessage = error instanceof Error ? error.message : 'Failed to edit debt';
+            throw new HttpException(errorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -80,7 +99,8 @@ export class DebtsController {
         try {
             return await this.debtsService.deleteDebt(userId, debtId);
         } catch (error) {
-            throw new HttpException(error.message || 'Failed to delete debt', HttpStatus.INTERNAL_SERVER_ERROR);
+            const errorMessage = error instanceof Error ? error.message : 'Failed to delete debt';
+            throw new HttpException(errorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -111,8 +131,9 @@ export class DebtsController {
             };
 
         } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Falha ao processar o pagamento';
             throw new HttpException(
-                error?.message || 'Falha ao processar o pagamento',
+                errorMessage,
                 HttpStatus.INTERNAL_SERVER_ERROR,
             );
         }
@@ -153,7 +174,8 @@ export class DebtsController {
             return { message: 'Simulação realizada com sucesso!', data: simulation };
         } catch (error) {
             // Log de erro para o caso de falha na simulação
-            throw new HttpException(error?.message || 'Falha ao simular o pagamento', HttpStatus.INTERNAL_SERVER_ERROR);
+            const errorMessage = error instanceof Error ? error.message : 'Falha ao simular o pagamento';
+            throw new HttpException(errorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -168,7 +190,8 @@ export class DebtsController {
             const evolution = await this.debtsService.getDebtEvolution(userId, debtId);
             return evolution;
         } catch (error) {
-            throw new HttpException(error.message || 'Failed to retrieve debt evolution', HttpStatus.INTERNAL_SERVER_ERROR);
+            const errorMessage = error instanceof Error ? error.message : 'Failed to retrieve debt evolution';
+            throw new HttpException(errorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -191,7 +214,8 @@ export class DebtsController {
             );
             return report;
         } catch (error) {
-            throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+            const errorMessage = error instanceof Error ? error.message : 'Failed to generate report';
+            throw new HttpException(errorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -227,19 +251,20 @@ export class DebtsController {
             );
             return projection;
         } catch (error) {
-            throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+            const errorMessage = error instanceof Error ? error.message : 'Failed to simulate payment projection';
+            throw new HttpException(errorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     @Get('assistente/analisar')
     async analisarDividas(@Query('userId') userId: string, @Query('renda') renda: number) {
         return this.debtAssistantService.analyzeDebts(userId, renda);
     }
-    
+
     @Get('analyze')
     analyzeDebts(
         @Query('userId') userId: string,
         @Query('amount') amount: string
-    ){
+    ) {
         return this.debtAssistantService.analyzeDebts(userId, parseFloat(amount));
     }
 }
