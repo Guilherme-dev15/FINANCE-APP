@@ -1,73 +1,31 @@
-# React + TypeScript + Vite
+# Project: FinanceApp - Debt Management System
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## 1. Architecture Overview
+Sistema full-stack para gestão, simulação e priorização de dívidas pessoais. 
+O sistema é dividido em uma API RESTful robusta e um cliente SPA (Single Page Application).
 
-Currently, two official plugins are available:
+## 2. Technology Stack
+**Backend:**
+- Framework: NestJS (Node.js)
+- Database: MongoDB via Prisma ORM
+- Auth: JWT (JSON Web Tokens)
+- Testing: Jest (Unitário, Integração e E2E)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+**Frontend:**
+- Framework: React 18 + Vite
+- Styling: TailwindCSS + PostCSS
+- State Management: Zustand (via hooks customizados)
+- HTTP Client: Axios / Fetch API (`api.ts`)
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## 3. Directory Structure
+```text
+/backend
+  /src
+    /auth       # Autenticação e Guards
+    /debts      # Regras de negócio core (Cálculos, Assistente, CRUD)
+    /database   # Prisma Module e Schema
+/frontend
+  /src
+    /components # Modais e Formulários (UI)
+    /pages      # Views principais (Login, Dashboard)
+    /hooks      # Lógica de estado e requisições (useAuth, useDebts)
