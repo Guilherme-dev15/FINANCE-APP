@@ -1,22 +1,26 @@
+/* eslint-disable @typescript-eslint/require-await */
 // auth.module.ts
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-import { MongooseModule } from '@nestjs/mongoose';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
-import { User, UserSchema } from './user.model';
+
+// 1. Injetamos o Prisma (ajuste os pontos '../' conforme a pasta do seu PrismaModule)
+import { PrismaModule } from '../../prisma/prisma.module'; 
 
 @Module({
-  
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
     }),
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    
+    // 2. MongooseModule removido, PrismaModule entra no lugar
+    PrismaModule, 
+    
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       imports: [ConfigModule],

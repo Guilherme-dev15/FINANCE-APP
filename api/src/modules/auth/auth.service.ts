@@ -1,31 +1,38 @@
 import { Injectable, ConflictException, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
-import { User } from './user.model';
-import { LoginDto } from '../debts/dto/login.dto';  // Importando o DTO de login
-import { RegisterDto } from '../debts/dto/register.dto'; // Importando o DTO de registro
+import { PrismaService } from '../../prisma/prisma.service'; // 👈 Injeção do Prisma (ajuste o caminho se necessário)
+import { LoginDto } from '../debts/dto/login.dto';  
+import { RegisterDto } from '../debts/dto/register.dto'; 
 
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectModel(User.name) private userModel: Model<User>,
-    private readonly jwtService: JwtService // Injeta o JwtService
+    private prisma: PrismaService, // 👈 Prisma substitui o userModel
+    private readonly jwtService: JwtService
   ) {}
 
   async register(registerDto: RegisterDto): Promise<{ message: string }> {
     const { email, password } = registerDto;
 
-    // Verifica se usuário já existe
-    const existingUser = await this.userModel.findOne({ email });
+    // 👈 Busca via Prisma (findUnique é mais rápido e otimizado para índices únicos como email)
+    const existingUser = await this.prisma.user.findUnique({ 
+      where: { email } 
+    });
+    
     if (existingUser) {
       throw new ConflictException('Email já está em uso');
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = new this.userModel({ email, password: hashedPassword });
-    await user.save();
+    
+    // 👈 Criação direta via Prisma (substitui o new Model() + save())
+    await this.prisma.user.create({ 
+      data: { 
+        email, 
+        password: hashedPassword 
+      } 
+    });
     
     return { message: 'Usuário registrado com sucesso' };
   }
@@ -33,7 +40,10 @@ export class AuthService {
   async login(loginDto: LoginDto): Promise<{ access_token: string }> {
     const { email, password } = loginDto;
 
-    const user = await this.userModel.findOne({ email }).select('+password');
+    // 👈 Busca o usuário. O Prisma já traz todos os campos mapeados, não precisa de .select('+password')
+    const user = await this.prisma.user.findUnique({ 
+      where: { email } 
+    });
     
     if (!user) {
       throw new NotFoundException('Usuário não encontrado');
@@ -44,9 +54,10 @@ export class AuthService {
       throw new UnauthorizedException('Credenciais inválidas');
     }
 
-    const payload = { sub: user._id, email: user.email };
+    // 👈 Adaptação do Mongo (_id) para o Prisma (id)
+    const payload = { sub: user.id, email: user.email };
     return {
-      access_token: this.jwtService.sign(payload), // Usa JwtService injetado
+      access_token: this.jwtService.sign(payload),
     };
   }
 }

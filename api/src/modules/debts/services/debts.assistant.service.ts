@@ -1,16 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { Debt } from '../schemas/debts.model';
+import { Debt } from '@prisma/client'; 
+import { PrismaService } from '../../../prisma/prisma.service'; 
 import { DebtStatus } from '../dto/create-debt.dto';
 import { PrioritizedDebt } from '../interfaces/prioritized-debt.interface';
 
 @Injectable()
 export class DebtAssistantService {
-  constructor(
-    @InjectModel(Debt.name)
-    private readonly debtModel: Model<Debt>,
-  ) { }
+  constructor(private prisma: PrismaService) {}
 
   async analyzeDebts(userId: string, availableMonthlyAmount: number): Promise<{
     message: string;
@@ -18,7 +14,12 @@ export class DebtAssistantService {
     availableMonthlyAmount: number;
     prioritizedDebts: PrioritizedDebt[];
   }> {
-    const debts = await this.debtModel.find({ userId, status: { $ne: DebtStatus.PAID } }).exec();
+    const debts = await this.prisma.debt.findMany({
+      where: {
+        userId,
+        status: { not: DebtStatus.PAID },
+      },
+    });
 
     if (!debts || debts.length === 0) {
       throw new NotFoundException('Nenhuma dívida ativa encontrada para este usuário.');
@@ -31,15 +32,14 @@ export class DebtAssistantService {
       totalDebts: prioritized.length,
       availableMonthlyAmount,
       prioritizedDebts: prioritized.map(debt => ({
-        id: String(debt._id),
-        name: debt.description,
-        interestRate: debt.interestRate,
+        id: String(debt.id), 
+        name: debt.description, 
+        interestRate: Number(debt.interestRate || 0), 
         remainingInstallments: debt.remainingInstallments,
         dueDate: debt.dueDate,
-        monthlyInstallment: debt.currentAmount / debt.remainingInstallments,
+        monthlyInstallment: Number(debt.currentAmount || 0) / (debt.remainingInstallments || 1),
       })),
     };
-
   }
 
   analyzeDebtFeasibility(
@@ -60,15 +60,12 @@ export class DebtAssistantService {
 
   private prioritizeDebts(debts: Debt[]): Debt[] {
     return debts.sort((a, b) => {
-      // Ordena por taxa de juros (decrescente)
-      const interestDiff = (b.interestRate || 0) - (a.interestRate || 0);
+      const interestDiff = Number(b.interestRate || 0) - Number(a.interestRate || 0);
       if (interestDiff !== 0) return interestDiff;
 
-      // Depois por menor número de parcelas restantes
       const installmentDiff = a.remainingInstallments - b.remainingInstallments;
       if (installmentDiff !== 0) return installmentDiff;
 
-      // Por fim, por vencimento mais próximo
       return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
     });
   }
