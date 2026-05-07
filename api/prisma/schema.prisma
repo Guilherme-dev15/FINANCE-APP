@@ -1,0 +1,45 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// 👤 Model de Usuários
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relacionamento: Um usuário tem muitas dívidas
+  debts     Debt[]
+}
+
+// 💸 Model de Dívidas
+model Debt {
+  id                    String   @id @default(uuid())
+  description           String
+  originalAmount        Float
+  currentAmount         Float
+  dueDate               DateTime
+  interestRate          Float
+  remainingInstallments Int
+  status                String   @default("pendente") // pendente ou pago
+  debtType              String   @default("CREDIT_CARD")
+  totalAmountPaid        Float    @default(0)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  // Relacionamento: Essa dívida pertence a um usuário
+  userId                String
+  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
