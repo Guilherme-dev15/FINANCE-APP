@@ -1,21 +1,17 @@
 {
   "compilerOptions": {
     "module": "commonjs",
+    "ignoreDeprecations": "6.0",
     "declaration": true,
     "removeComments": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "allowSyntheticDefaultImports": true,
-    "target": "ES2021",
+    "allowJs": true,
+    "target": "es2017",
     "sourceMap": true,
     "outDir": "./dist",
-    "ignoreDeprecations": "5.0",
-    "incremental": true,
-    "skipLibCheck": true,
-    "strictNullChecks": false,
-    "noImplicitAny": false,
-    "strictBindCallApply": false,
-    "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false
+    "baseUrl": "./",
+    "types": ["node", "jest"],
+    "typeRoots": ["node_modules/@types"] 
   }
 }

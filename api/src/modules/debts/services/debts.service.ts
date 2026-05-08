@@ -1,5 +1,5 @@
 import { Injectable, HttpException, HttpStatus, Logger } from '@nestjs/common';
-import { Debt, Prisma } from '@prisma/client'; // 👈 Importamos o Prisma Helper aqui
+import { Debt, Prisma } from '@prisma/client'; 
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CreateDebtDto, DebtStatus, DebtType } from '../dto/create-debt.dto';
 import { DebtCalculationService } from './debt.calculation.service';
@@ -28,7 +28,7 @@ export class DebtsService {
           userId,
           ...debtData,
           totalAmount,
-        } as unknown as Prisma.DebtUncheckedCreateInput, // 👈 Bypass seguro aprovado pelo ESLint
+        } as unknown as Prisma.DebtUncheckedCreateInput, 
       });
     } catch (error) {
       const errorStack = error instanceof Error ? error.stack : String(error);
@@ -77,7 +77,7 @@ export class DebtsService {
   }
 
   async listDebts(userId: string, status?: string) {
-    // 👈 Tipagem explícita para o ESLint parar de reclamar do .status
+  
     const filter: Prisma.DebtWhereInput = { userId };
     if (status) filter.status = status;
 
@@ -227,7 +227,7 @@ export class DebtsService {
     return evolutionData;
   }
 
-  // 👈 async removido pois não há promises aqui (Exigência do require-await)
+ 
   sendDebtNotification(debt: Debt) {
     const currentDate = new Date();
     const dueDate = new Date(debt.dueDate);

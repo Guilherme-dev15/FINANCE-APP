@@ -1,9 +1,12 @@
+ 
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './modules/auth/auth.module';
 import { ProtectedModule } from './protected/protected.module'; 
-import { DebtsModule } from './modules/debts/services/debts.module';
 import { PrismaModule } from './prisma/prisma.module'; 
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { DebtsModule } from './modules/debts/debts.module';
 
 @Module({
   imports: [
@@ -14,5 +17,7 @@ import { PrismaModule } from './prisma/prisma.module';
     DebtsModule,
     ProtectedModule, 
   ],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}

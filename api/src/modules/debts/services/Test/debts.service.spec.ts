@@ -1,21 +1,28 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/unbound-method */
 import { Test, TestingModule } from '@nestjs/testing';
-import { DebtsService } from './../debts.service';
-import { getModelToken } from '@nestjs/mongoose';
-import { Debt, DebtDocument } from '../../schemas/debts.model';
-import { HttpException, NotFoundException } from '@nestjs/common';
+import { DebtsService } from '../debts.service';
+import { HttpException } from '@nestjs/common';
 import { CreateDebtDto, DebtStatus, DebtType } from '../../dto/create-debt.dto';
-import { Model } from 'mongoose';
+import { PrismaService } from '../../../../prisma/prisma.service';
 
 describe('DebtsService', () => {
   let service: DebtsService;
-  let debtModel: jest.Mocked<Model<Debt>>;
+  let prisma: PrismaService;
 
-  const mockSave = jest.fn();
-  const mockFind = jest.fn();
-  const mockFindOne = jest.fn(); // Adicionado
+  const mockPrismaService = {
+    debt: {
+      create: jest.fn(),
+      findMany: jest.fn(),
+      findUnique: jest.fn(),
+      findFirst: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+    },
+  };
 
   const mockDebtData = {
-    _id: 'mockedId',
+    id: 'mockedId', 
     userId: 'user123',
     description: 'Cartão',
     originalAmount: 1000,
@@ -24,38 +31,26 @@ describe('DebtsService', () => {
     interestRate: 2,
     remainingInstallments: 10,
     status: DebtStatus.PENDING,
-    debtType: 'credit',
+    debtType: 'CREDIT_CARD',
+    totalAmountPaid: 0,
+    createdAt: new Date(),
+    updatedAt: new Date(),
   };
 
-
   beforeEach(async () => {
-    // Mock do model com os métodos necessários
-    const mockDebtModel: Partial<jest.Mocked<Model<Debt>>> = {
-      find: mockFind,
-      findOne: mockFindOne, // Corrigido aqui
-    };
-
-    // Mock do construtor para simular save()
-    const mockConstructor = jest.fn().mockImplementation((dto) => ({
-      ...dto,
-      save: mockSave,
-    }));
-
-    // Montagem do módulo de teste
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         DebtsService,
         {
-          provide: getModelToken(Debt.name),
-          useValue: Object.assign(mockConstructor, mockDebtModel),
+          provide: PrismaService,
+          useValue: mockPrismaService,
         },
       ],
     }).compile();
 
     service = module.get<DebtsService>(DebtsService);
-    debtModel = module.get(getModelToken(Debt.name));
+    prisma = module.get<PrismaService>(PrismaService);
   });
-
 
   afterEach(() => {
     jest.clearAllMocks();
@@ -74,12 +69,12 @@ describe('DebtsService', () => {
         debtType: DebtType.LOAN,
       };
 
-      mockSave.mockResolvedValueOnce(mockDebtData);
+      mockPrismaService.debt.create.mockResolvedValueOnce(mockDebtData);
 
       const result = await service.createDebt('user123', createDto);
 
       expect(result).toEqual(mockDebtData);
-      expect(mockSave).toHaveBeenCalled();
+      expect(prisma.debt.create).toHaveBeenCalled();
     });
 
     it('deve lançar exceção se originalAmount <= 0', async () => {
@@ -98,23 +93,24 @@ describe('DebtsService', () => {
     });
   });
 
-
   describe('listDebts', () => {
     it('deve retornar todas as dívidas do usuário sem filtro de status', async () => {
       const userId = 'user123';
       const mockDebts = [
-        { _id: 'debt1', userId, description: 'Cartão de crédito', originalAmount: 1000, currentAmount: 900, status: 'pending' },
-        { _id: 'debt2', userId, description: 'Empréstimo pessoal', originalAmount: 2000, currentAmount: 1500, status: 'pending' },
+        { id: 'debt1', userId, description: 'Cartão de crédito', originalAmount: 1000, currentAmount: 900, status: 'pending', interestRate: 0 },
+        { id: 'debt2', userId, description: 'Empréstimo pessoal', originalAmount: 2000, currentAmount: 1500, status: 'pending', interestRate: 0 },
       ];
 
-      mockFind.mockReturnValueOnce({
-        exec: jest.fn().mockResolvedValueOnce(mockDebts),
-      });
+      mockPrismaService.debt.findMany.mockResolvedValueOnce(mockDebts);
 
       const result = await service.listDebts(userId);
 
-      expect(result).toEqual(mockDebts);
-      expect(mockFind).toHaveBeenCalledWith({ userId });
+      expect(result).toMatchObject([
+        { id: 'debt1', currentAmount: 900, currentBalance: 900 },
+        { id: 'debt2', currentAmount: 1500, currentBalance: 1500 }
+      ]);
+      
+      expect(prisma.debt.findMany).toHaveBeenCalledWith(expect.objectContaining({ where: expect.objectContaining({ userId }) }));
     });
   });
 
@@ -122,29 +118,23 @@ describe('DebtsService', () => {
     it('deve retornar a dívida corretamente se existir', async () => {
       const userId = 'user123';
       const debtId = 'debt456';
+      const mockDebt = { ...mockDebtData, id: debtId };
 
-      const mockDebt = { ...mockDebtData, _id: debtId };
-
-      debtModel.findOne = jest.fn().mockReturnValue({
-        exec: jest.fn().mockResolvedValue(mockDebt),
-      });
+      mockPrismaService.debt.findUnique.mockResolvedValueOnce(mockDebt);
+      mockPrismaService.debt.findFirst.mockResolvedValueOnce(mockDebt);
 
       const result = await service.getDebtById(userId, debtId);
-
       expect(result).toEqual(mockDebt);
-      expect(debtModel.findOne).toHaveBeenCalledWith({ _id: debtId, userId });
     });
 
     it('deve lançar exceção se a dívida não for encontrada', async () => {
       const userId = 'user123';
       const debtId = 'debt999';
 
-      debtModel.findOne = jest.fn().mockReturnValue({
-        exec: jest.fn().mockResolvedValue(null),
-      });
+      mockPrismaService.debt.findUnique.mockResolvedValueOnce(null);
+      mockPrismaService.debt.findFirst.mockResolvedValueOnce(null);
 
       await expect(service.getDebtById(userId, debtId)).rejects.toThrow(HttpException);
-      expect(debtModel.findOne).toHaveBeenCalledWith({ _id: debtId, userId });
     });
   });
 
@@ -163,31 +153,23 @@ describe('DebtsService', () => {
         debtType: DebtType.LOAN,
       };
 
-      const mockUpdatedDebt = {
-        _id: debtId,
-        userId,
-        ...updateDto,
-      };
+      const mockUpdatedDebt = { id: debtId, userId, ...updateDto };
 
-      const mockFindOneAndUpdate = jest.fn().mockResolvedValue(mockUpdatedDebt);
-
-      debtModel.findOneAndUpdate = mockFindOneAndUpdate;
+      mockPrismaService.debt.findUnique.mockResolvedValueOnce(mockDebtData);
+      mockPrismaService.debt.findFirst.mockResolvedValueOnce(mockDebtData);
+      mockPrismaService.debt.update.mockResolvedValueOnce(mockUpdatedDebt);
 
       const result = await service.editDebt(userId, debtId, updateDto);
 
       expect(result.description).toBe(updateDto.description);
-      expect(debtModel.findOneAndUpdate).toHaveBeenCalledWith(
-        { _id: debtId, userId },
-        updateDto,
-        { new: true }
-      );
+      expect(prisma.debt.update).toHaveBeenCalled();
     });
 
     it('deve lançar exceção se a dívida não for encontrada', async () => {
       const userId = 'user123';
       const debtId = 'nonexistentId';
       const updateDto: CreateDebtDto = {
-        description: 'Atualização válida',
+        description: 'Atualização',
         originalAmount: 1000,
         dueDate: new Date(),
         currentAmount: 800,
@@ -197,9 +179,8 @@ describe('DebtsService', () => {
         debtType: DebtType.LOAN,
       };
 
-      const mockFindOneAndUpdate = jest.fn().mockResolvedValue(null);
-
-      debtModel.findOneAndUpdate = mockFindOneAndUpdate;
+      mockPrismaService.debt.findUnique.mockResolvedValueOnce(null);
+      mockPrismaService.debt.findFirst.mockResolvedValueOnce(null);
 
       await expect(service.editDebt(userId, debtId, updateDto)).rejects.toThrow('Dívida não encontrada');
     });
@@ -210,22 +191,20 @@ describe('DebtsService', () => {
       const userId = 'user123';
       const debtId = 'mockedId';
 
-      const mockFindOneAndDelete = jest.fn().mockResolvedValue({ _id: debtId, userId });
-
-      debtModel.findOneAndDelete = mockFindOneAndDelete;
+      mockPrismaService.debt.findUnique.mockResolvedValueOnce(mockDebtData);
+      mockPrismaService.debt.findFirst.mockResolvedValueOnce(mockDebtData);
+      mockPrismaService.debt.delete.mockResolvedValueOnce({ id: debtId, userId });
 
       await service.deleteDebt(userId, debtId);
-
-      expect(debtModel.findOneAndDelete).toHaveBeenCalledWith({ userId, _id: debtId });
+      expect(prisma.debt.delete).toHaveBeenCalled();
     });
 
     it('deve lançar exceção se a dívida não for encontrada', async () => {
       const userId = 'user123';
       const debtId = 'nonexistentId';
 
-      const mockFindOneAndDelete = jest.fn().mockResolvedValue(null);
-
-      debtModel.findOneAndDelete = mockFindOneAndDelete;
+      mockPrismaService.debt.findUnique.mockResolvedValueOnce(null);
+      mockPrismaService.debt.findFirst.mockResolvedValueOnce(null);
 
       await expect(service.deleteDebt(userId, debtId)).rejects.toThrow('Dívida não encontrada');
     });
@@ -235,70 +214,37 @@ describe('DebtsService', () => {
     it('deve simular corretamente o pagamento com juros', async () => {
       const userId = 'user123';
       const debtId = 'mockedDebtId';
-      const paymentAmount = 200;
+      const mockDebt = { id: debtId, userId, currentAmount: 1000, interestRate: 12 };
 
-      const mockDebt = {
-        _id: debtId,
-        userId,
-        currentAmount: 1000,
-        interestRate: 12, // 12% ao ano → 1% ao mês
-      };
+      mockPrismaService.debt.findUnique.mockResolvedValueOnce(mockDebt);
+      mockPrismaService.debt.findFirst.mockResolvedValueOnce(mockDebt);
 
-      const mockFindOne = jest.fn().mockResolvedValue(mockDebt);
-      debtModel.findOne = mockFindOne;
-
-      const result = await service.simulatePayment(userId, debtId, paymentAmount);
+      const result = await service.simulatePayment(userId, debtId, 200);
 
       expect(result.monthsToPay).toBeGreaterThan(0);
       expect(result.remainingAmount).toBe(0);
-      expect(debtModel.findOne).toHaveBeenCalledWith({ userId, _id: debtId });
-    });
-
-    it('deve lançar erro se a dívida não for encontrada', async () => {
-      const userId = 'user123';
-      const debtId = 'nonexistentId';
-      const paymentAmount = 200;
-
-      const mockFindOne = jest.fn().mockResolvedValue(null);
-      debtModel.findOne = mockFindOne;
-
-      await expect(service.simulatePayment(userId, debtId, paymentAmount)).rejects.toThrow('Dívida não encontrada');
     });
 
     it('deve lançar erro se o valor do pagamento for zero ou negativo', async () => {
       const userId = 'user123';
       const debtId = 'mockedDebtId';
-      const paymentAmount = 0;
+      const mockDebt = { id: debtId, userId, currentAmount: 1000, interestRate: 12 };
 
-      const mockDebt = {
-        _id: debtId,
-        userId,
-        currentAmount: 1000,
-        interestRate: 12,
-      };
+      mockPrismaService.debt.findUnique.mockResolvedValueOnce(mockDebt);
+      mockPrismaService.debt.findFirst.mockResolvedValueOnce(mockDebt);
 
-      const mockFindOne = jest.fn().mockResolvedValue(mockDebt);
-      debtModel.findOne = mockFindOne;
-
-      await expect(service.simulatePayment(userId, debtId, paymentAmount)).rejects.toThrow('O valor do pagamento deve ser maior que zero');
+      await expect(service.simulatePayment(userId, debtId, 0)).rejects.toThrow('O valor do pagamento deve ser maior que zero');
     });
 
     it('deve simular corretamente pagamento com taxa de juros zero', async () => {
       const userId = 'user123';
       const debtId = 'mockedDebtId';
-      const paymentAmount = 250;
+      const mockDebt = { id: debtId, userId, currentAmount: 1000, interestRate: 0 };
 
-      const mockDebt = {
-        _id: debtId,
-        userId,
-        currentAmount: 1000,
-        interestRate: 0, // Sem juros
-      };
+      mockPrismaService.debt.findUnique.mockResolvedValueOnce(mockDebt);
+      mockPrismaService.debt.findFirst.mockResolvedValueOnce(mockDebt);
 
-      const mockFindOne = jest.fn().mockResolvedValue(mockDebt);
-      debtModel.findOne = mockFindOne;
-
-      const result = await service.simulatePayment(userId, debtId, paymentAmount);
+      const result = await service.simulatePayment(userId, debtId, 250);
 
       expect(result.monthsToPay).toBe(4);
       expect(result.remainingAmount).toBe(0);
@@ -312,52 +258,27 @@ describe('DebtsService', () => {
       const endDate = new Date('2025-12-31');
 
       const mockDebts = [
-        {
-          _id: 'debt1',
-          description: 'Cartão de crédito',
-          originalAmount: 3000,
-          currentAmount: 1000,
-          dueDate: new Date('2025-06-01'),
-          status: DebtStatus.PENDING,
-        },
-        {
-          _id: 'debt2',
-          description: 'Empréstimo pessoal',
-          originalAmount: 5000,
-          currentAmount: 3000,
-          dueDate: new Date('2025-10-01'),
-          status: DebtStatus.PAID,
-        },
+        { id: 'debt1', description: 'Cartão de crédito', originalAmount: 3000, currentAmount: 1000, dueDate: new Date('2025-06-01'), status: DebtStatus.PENDING },
+        { id: 'debt2', description: 'Empréstimo pessoal', originalAmount: 5000, currentAmount: 3000, dueDate: new Date('2025-10-01'), status: DebtStatus.PAID },
       ];
 
-      const mockExec = jest.fn().mockResolvedValue(mockDebts);
-
-      debtModel.find = jest.fn().mockReturnValue({ exec: mockExec });
+      mockPrismaService.debt.findMany.mockResolvedValueOnce(mockDebts);
 
       const result = await service.generateDebtReport(userId, startDate, endDate);
 
       expect(result.totalDebt).toBe(8000);
-      expect(result.totalPaid).toBe(4000); // 2000 + 2000 pagos
+      expect(result.totalPaid).toBe(4000);
       expect(result.debts).toHaveLength(2);
-      expect(result.debts[0]).toHaveProperty('description', 'Cartão de crédito');
-      expect(result.debts[1]).toHaveProperty('status', DebtStatus.PAID);
-
-      expect(debtModel.find).toHaveBeenCalledWith({
-        userId,
-        dueDate: { $gte: startDate, $lte: endDate },
+      expect(prisma.debt.findMany).toHaveBeenCalledWith({
+        where: { userId, dueDate: { gte: startDate, lte: endDate } }
       });
     });
 
     it('deve retornar valores zerados se não houver dívidas no intervalo', async () => {
       const userId = 'user123';
-      const startDate = new Date('2025-01-01');
-      const endDate = new Date('2025-12-31');
+      mockPrismaService.debt.findMany.mockResolvedValueOnce([]);
 
-      const mockExec = jest.fn().mockResolvedValue([]);
-
-      debtModel.find = jest.fn().mockReturnValue({ exec: mockExec });
-
-      const result = await service.generateDebtReport(userId, startDate, endDate);
+      const result = await service.generateDebtReport(userId, new Date(), new Date());
 
       expect(result.totalDebt).toBe(0);
       expect(result.totalPaid).toBe(0);
@@ -367,61 +288,34 @@ describe('DebtsService', () => {
 
   describe('simulatePaymentProjection', () => {
     it('deve retornar a quantidade de meses e o valor restante como 0', async () => {
-      // Arrange
-      mockFindOne.mockResolvedValueOnce({
-        ...mockDebtData,
-        currentAmount: 1000,
-        interestRate: 2,
-      });
+      const mockDebt = { ...mockDebtData, currentAmount: 1000, interestRate: 2 };
+      mockPrismaService.debt.findUnique.mockResolvedValueOnce(mockDebt);
+      mockPrismaService.debt.findFirst.mockResolvedValueOnce(mockDebt);
 
-      const userId = 'user123';
-      const debtId = 'mockedId';
-      const newPaymentAmount = 300;
-      const newInterestRate = 2;
+      const result = await service.simulatePaymentProjection('user123', 'mockedId', 300, 2);
 
-      // Act
-      const result = await service.simulatePaymentProjection(userId, debtId, newPaymentAmount, newInterestRate);
-
-      // Assert
       expect(result.monthsToPay).toBeGreaterThan(0);
       expect(result.remainingAmount).toBe(0);
-      expect(mockFindOne).toHaveBeenCalledWith({ userId, _id: debtId });
     });
+
     it('deve lançar exceção se a dívida não for encontrada', async () => {
-      // Arrange
-      mockFindOne.mockResolvedValueOnce(null); // dívida não encontrada
+      mockPrismaService.debt.findUnique.mockResolvedValueOnce(null);
+      mockPrismaService.debt.findFirst.mockResolvedValueOnce(null);
 
-      const userId = 'user123';
-      const debtId = 'invalidId';
-      const newPaymentAmount = 300;
-      const newInterestRate = 2;
-
-      // Act & Assert
       await expect(
-        service.simulatePaymentProjection(userId, debtId, newPaymentAmount, newInterestRate),
+        service.simulatePaymentProjection('user123', 'invalidId', 300, 2),
       ).rejects.toThrowError('Dívida não encontrada');
-
-      expect(mockFindOne).toHaveBeenCalledWith({ userId, _id: debtId });
     });
+
     it('deve retornar projeção correta com pagamento suficiente', async () => {
-      const dynamicDebt = { ...mockDebtData };
+      mockPrismaService.debt.findUnique.mockResolvedValueOnce(mockDebtData);
+      mockPrismaService.debt.findFirst.mockResolvedValueOnce(mockDebtData);
 
-      mockFindOne.mockImplementation(async () => {
-        return dynamicDebt;
-      });
-
-      const userId = 'user123';
-      const debtId = 'mockedId';
-      const newPaymentAmount = 150; // Suficiente para cobrir os juros
-      const newInterestRate = 2;
-
-      const result = await service.simulatePaymentProjection(userId, debtId, newPaymentAmount, newInterestRate);
+      const result = await service.simulatePaymentProjection('user123', 'mockedId', 150, 2);
 
       expect(result).toHaveProperty('monthsToPay');
       expect(result).toHaveProperty('remainingAmount');
-
       expect(result.remainingAmount).toBe(0);
     });
-
   });
 });

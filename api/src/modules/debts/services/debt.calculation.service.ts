@@ -1,6 +1,6 @@
-/* eslint-disable prettier/prettier */
+ 
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
-/* eslint-disable prettier/prettier */
+ 
  
 import { DebtType, CreateDebtDto } from '../dto/create-debt.dto';
 
