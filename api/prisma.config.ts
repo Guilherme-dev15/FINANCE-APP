@@ -1,11 +1,15 @@
+/* eslint-disable @typescript-eslint/no-unnecessary-type-assertion */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import "dotenv/config";
 import { defineConfig, env } from "prisma/config";
 
 export default defineConfig({
-  schema: "prisma/schema.prisma",
-  // ... suas outras configs ...
-  
-  // Adicione este bloco abaixo:
-  datasource: {
-    url: env("DATABASE_URL"),
+  schema: "./prisma/schema.prisma",
+  migrations: {
+    path: "./prisma/migrations",
+    seed: "tsx prisma/seed.ts",
   },
-})
+  datasource: {
+    url: process.env.DATABASE_URL!,
+  },
+});

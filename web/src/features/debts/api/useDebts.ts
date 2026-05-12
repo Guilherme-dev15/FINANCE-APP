@@ -3,10 +3,15 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../../config/api';
 import type { Debt, PrioritizedDebt, CreateDebtDTO } from '../types';
 
+// 🛡️ Dicionário de Chaves Oficial (Evita erros de digitação e garante que o cache seja invalidado na mosca)
 export const DEBTS_KEYS = {
   all: ['debts'] as const,
   prioritized: ['debts', 'prioritized'] as const,
 };
+
+// ==========================================
+// 📥 HOOKS DE BUSCA (GET) - Trazem os dados
+// ==========================================
 
 export const useGetDebts = () => {
   return useQuery<Debt[], Error>({
@@ -28,6 +33,10 @@ export const useGetPrioritizedDebts = () => {
   });
 };
 
+// ==========================================
+// 🚀 HOOKS DE MUTAÇÃO (POST/PUT/DELETE) - Alteram os dados
+// ==========================================
+
 export const useCreateDebt = () => {
   const queryClient = useQueryClient();
 
@@ -37,12 +46,13 @@ export const useCreateDebt = () => {
       return data;
     },
     onSuccess: async () => {
+      // Magia da Reatividade: Atualiza o painel automaticamente após o POST
       await queryClient.invalidateQueries({ queryKey: DEBTS_KEYS.all });
       await queryClient.invalidateQueries({ queryKey: DEBTS_KEYS.prioritized });
     },
   });
 };
-// 🔥 1. Hook para DELETAR dívida
+
 export const useDeleteDebt = () => {
   const queryClient = useQueryClient();
 
@@ -51,32 +61,28 @@ export const useDeleteDebt = () => {
       const response = await api.delete(`/debts/${debtId}`);
       return response.data;
     },
-    onSuccess: () => {
-      // Atualiza a tela automaticamente
-      queryClient.invalidateQueries({ queryKey: ['debts'] });
-      queryClient.invalidateQueries({ queryKey: ['prioritized-debts'] });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: DEBTS_KEYS.all });
+      await queryClient.invalidateQueries({ queryKey: DEBTS_KEYS.prioritized });
     },
   });
 };
 
-//  2. Hook para PAGAR dívida
 export const usePayDebt = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    // Recebe o ID da dívida e o valor pago
     mutationFn: async ({ debtId, amount }: { debtId: string; amount: number }) => {
       const response = await api.patch(`/debts/${debtId}/pay`, { paymentAmount: amount });
       return response.data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['debts'] });
-      queryClient.invalidateQueries({ queryKey: ['prioritized-debts'] });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: DEBTS_KEYS.all });
+      await queryClient.invalidateQueries({ queryKey: DEBTS_KEYS.prioritized });
     },
   });
 };
 
-//  3. Hook para EDITAR dívida
 export const useEditDebt = () => {
   const queryClient = useQueryClient();
 
@@ -85,29 +91,31 @@ export const useEditDebt = () => {
       const response = await api.put(`/debts/${debtId}`, data);
       return response.data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['debts'] });
-      queryClient.invalidateQueries({ queryKey: ['prioritized-debts'] });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: DEBTS_KEYS.all });
+      await queryClient.invalidateQueries({ queryKey: DEBTS_KEYS.prioritized });
     },
   });
 };
-//  Hook para buscar os dados do Gráfico de Evolução
+
+// ==========================================
+// 📊 HOOKS DE ANÁLISE E SIMULAÇÃO
+// ==========================================
+
 export const useGetDebtEvolution = (debtId: string | null) => {
   return useQuery({
-    queryKey: ['debt-evolution', debtId],
+    queryKey: ['debt-evolution', debtId], // Esta chave é específica e atrelada ao ID
     queryFn: async () => {
       const response = await api.get(`/debts/${debtId}/evolution`);
       return response.data;
     },
-    enabled: !!debtId, // A requisição só dispara se tivermos um ID válido
+    enabled: !!debtId, // A trava de segurança: só dispara a requisição se tivermos um ID válido
   });
 };
 
-// Hook para simular o pagamento e ver a evolução projetada
 export const useSimulatePayment = () => {
   return useMutation({
     mutationFn: async ({ debtId, newPaymentAmount, newInterestRate }: { debtId: string; newPaymentAmount: number; newInterestRate: number }) => {
-      // Usando a rota do seu NestJS que criamos lá no começo
       const response = await api.patch(`/debts/${debtId}/project-payment`, { 
         newPaymentAmount, 
         newInterestRate 

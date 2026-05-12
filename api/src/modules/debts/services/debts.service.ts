@@ -27,7 +27,6 @@ export class DebtsService {
         data: {
           userId,
           ...debtData,
-          totalAmount,
         } as unknown as Prisma.DebtUncheckedCreateInput, 
       });
     } catch (error) {

@@ -1,6 +1,7 @@
 import axios from 'axios';
+import { useAuthStore } from '../features/auth/store/useAuthStore'; // 👈 Ajuste este caminho se necessário
 
-// Cria a instância base do Axios
+// Cria a instância base do Axios apontando para o nosso NestJS
 export const api = axios.create({
   baseURL: 'http://localhost:3000',
   headers: {
@@ -11,8 +12,8 @@ export const api = axios.create({
 // Interceptor de Requisição: Injeta o JWT antes da chamada sair
 api.interceptors.request.use(
   (config) => {
-    // Pegamos o token de onde estivermos armazenando (Zustand, LocalStorage ou Cookies)
-    const token = localStorage.getItem('@FinanceApp:token');
+    // Pegamos o token direto do estado global do Zustand (Cofre que testamos hoje)
+    const token = useAuthStore.getState().token;
     
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -25,14 +26,14 @@ api.interceptors.request.use(
   }
 );
 
-// Interceptor de Resposta: Trata erros globais (ex: Token expirado)
+// Interceptor de Resposta: Trata erros globais
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Aqui você pode disparar um evento para deslogar o usuário e mandar pro /login
-      console.error('Token expirado ou inválido. Deslogando...');
-      // window.location.href = '/login'; 
+      console.warn('🔒 Token expirado ou inválido. Acionando protocolo de Logout...');
+      // Dispara a função do Zustand. Ele limpa o estado, o localStorage e o React redireciona o usuário.
+      useAuthStore.getState().logout();
     }
     return Promise.reject(error);
   }

@@ -1,36 +1,39 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { LoginPage } from './features/auth/pages/LoginPage';
-import { DebtsDashboardPage } from './features/debts/pages/DebtsDashboardPage';
-import { useAuthStore } from './features/auth/store/useAuthStore';
-import { RegisterPage } from './features/auth/pages/RegisterPage';
+import { LoginPage } from './features/auth/pages/LoginPage'; // Ajuste o caminho se precisar
+import { PrioritizedDebtsDashboard } from './features/debts/components/PrioritizedDebtsDashboard'; // Ajuste o caminho
+import { useAuthStore } from './features/auth/store/useAuthStore'; // Ajuste o caminho
+import type { JSX } from 'react';
 
-const queryClient = new QueryClient();
-
-// Componente para proteger rotas
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+// 🛡️ Guardião de Rota: Só deixa passar se tiver o token no Zustand
+function PrivateRoute({ children }: { children: JSX.Element }) {
   const token = useAuthStore((state) => state.token);
-  return token ? <>{children}</> : <Navigate to="/login" />;
-};
+  return token ? children : <Navigate to="/login" replace />;
+}
 
-export const App = () => {
+export default function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          
-          <Route path="/dashboard" element={
-            <ProtectedRoute>
-              <DebtsDashboardPage />
-            </ProtectedRoute>
-          } />
-          <Route path="/register" element={<RegisterPage />} />
+    <BrowserRouter>
+      <Routes>
+        {/* Rota Pública */}
+        <Route path="/login" element={<LoginPage />} />
 
-          {/* Rota padrão redireciona para login */}
-          <Route path="*" element={<Navigate to="/login" />} />
-        </Routes>
-      </BrowserRouter>
-    </QueryClientProvider>
+        {/* 🛡️ Redireciona a raiz para o dashboard automaticamente */}
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+
+        {/* 🚀 A Rota Protegida (O Painel Principal) */}
+        <Route 
+          path="/dashboard" 
+          element={
+            <PrivateRoute>
+              <div className="min-h-screen bg-slate-50 p-8">
+                <div className="max-w-4xl mx-auto">
+                  <PrioritizedDebtsDashboard />
+                </div>
+              </div>
+            </PrivateRoute>
+          } 
+        />
+      </Routes>
+    </BrowserRouter>
   );
-};
+}
