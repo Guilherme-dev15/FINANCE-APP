@@ -210,17 +210,42 @@ export class DebtsService {
     return { monthsToPay, remainingAmount };
   }
 
-  async getDebtEvolution(userId: string, debtId: string) {
+ async getDebtEvolution(userId: string, debtId: string) {
     const debt = await this.getDebtById(userId, debtId);
 
     let remainingAmount = Number(debt.currentAmount);
     const evolutionData: EvolutionData[] = [];
-    const months = debt.remainingInstallments;
-    const monthlyInterest = (Number(debt.interestRate) || 0) / 100 / 12;
+    
+    // Proteção: Se a dívida não tiver parcelas, assume 12 para simular o gráfico
+    const months = debt.remainingInstallments > 0 ? debt.remainingInstallments : 12; 
+    
+    // Ajuste da Taxa: Como o front manda ao mês (% a.m.), não dividimos por 12
+    const rawInterest = Number(debt.interestRate) || 0;
+    const monthlyInterest = rawInterest > 1 ? rawInterest / 100 : rawInterest;
 
+    // MAGIA MATEMÁTICA: Cálculo da Parcela Fixa (Tabela Price)
+    let monthlyPayment = 0;
+    if (monthlyInterest > 0) {
+      monthlyPayment = remainingAmount * (monthlyInterest / (1 - Math.pow(1 + monthlyInterest, -months)));
+    } else {
+      monthlyPayment = remainingAmount / months;
+    }
+
+    // Injeta o mês zero (O saldo atual de hoje, antes de começar a pagar)
+    evolutionData.push({ month: 0, amount: Number(remainingAmount.toFixed(2)) });
+
+    // Loop de Amortização Mês a Mês
     for (let i = 0; i < months; i++) {
-      remainingAmount += remainingAmount * monthlyInterest;
-      evolutionData.push({ month: i + 1, amount: remainingAmount });
+      // 1. Aplica o juros sobre o saldo devedor atual
+      const jurosDoMes = remainingAmount * monthlyInterest;
+      
+      // 2. Calcula o novo saldo (Saldo Antigo + Juros - Parcela)
+      remainingAmount = (remainingAmount + jurosDoMes) - monthlyPayment;
+      
+      // 3. Trava de segurança: Garante que a última parcela não fique negativa (ex: -0.01) por causa de arredondamento
+      if (remainingAmount < 0.05) remainingAmount = 0; 
+
+      evolutionData.push({ month: i + 1, amount: Number(remainingAmount.toFixed(2)) });
     }
 
     return evolutionData;
