@@ -52,7 +52,9 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   User: 'User',
-  Debt: 'Debt'
+  Debt: 'Debt',
+  Income: 'Income',
+  Expense: 'Expense'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -74,9 +76,10 @@ export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof
 export const UserScalarFieldEnum = {
   id: 'id',
   email: 'email',
-  password: 'password',
+  name: 'name',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  password: 'password'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
@@ -84,20 +87,53 @@ export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof User
 
 export const DebtScalarFieldEnum = {
   id: 'id',
+  userId: 'userId',
   description: 'description',
+  originalCreditor: 'originalCreditor',
+  debtType: 'debtType',
+  status: 'status',
   originalAmount: 'originalAmount',
   currentAmount: 'currentAmount',
-  dueDate: 'dueDate',
+  iofAmount: 'iofAmount',
   interestRate: 'interestRate',
+  cetRate: 'cetRate',
   remainingInstallments: 'remainingInstallments',
-  status: 'status',
-  debtType: 'debtType',
+  dueDate: 'dueDate',
+  customInstallment: 'customInstallment',
+  haircutDiscount: 'haircutDiscount',
+  informalContact: 'informalContact',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  userId: 'userId'
+  updatedAt: 'updatedAt'
 } as const
 
 export type DebtScalarFieldEnum = (typeof DebtScalarFieldEnum)[keyof typeof DebtScalarFieldEnum]
+
+
+export const IncomeScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  description: 'description',
+  amount: 'amount',
+  type: 'type',
+  date: 'date',
+  createdAt: 'createdAt'
+} as const
+
+export type IncomeScalarFieldEnum = (typeof IncomeScalarFieldEnum)[keyof typeof IncomeScalarFieldEnum]
+
+
+export const ExpenseScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  description: 'description',
+  amount: 'amount',
+  type: 'type',
+  category: 'category',
+  date: 'date',
+  createdAt: 'createdAt'
+} as const
+
+export type ExpenseScalarFieldEnum = (typeof ExpenseScalarFieldEnum)[keyof typeof ExpenseScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -114,4 +150,12 @@ export const QueryMode = {
 } as const
 
 export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
+export const NullsOrder = {
+  first: 'first',
+  last: 'last'
+} as const
+
+export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 

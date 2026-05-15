@@ -27,62 +27,88 @@ export type AggregateDebt = {
 }
 
 export type DebtAvgAggregateOutputType = {
-  originalAmount: number | null
-  currentAmount: number | null
-  interestRate: number | null
+  originalAmount: runtime.Decimal | null
+  currentAmount: runtime.Decimal | null
+  iofAmount: runtime.Decimal | null
+  interestRate: runtime.Decimal | null
+  cetRate: runtime.Decimal | null
   remainingInstallments: number | null
+  customInstallment: runtime.Decimal | null
+  haircutDiscount: runtime.Decimal | null
 }
 
 export type DebtSumAggregateOutputType = {
-  originalAmount: number | null
-  currentAmount: number | null
-  interestRate: number | null
+  originalAmount: runtime.Decimal | null
+  currentAmount: runtime.Decimal | null
+  iofAmount: runtime.Decimal | null
+  interestRate: runtime.Decimal | null
+  cetRate: runtime.Decimal | null
   remainingInstallments: number | null
+  customInstallment: runtime.Decimal | null
+  haircutDiscount: runtime.Decimal | null
 }
 
 export type DebtMinAggregateOutputType = {
   id: string | null
+  userId: string | null
   description: string | null
-  originalAmount: number | null
-  currentAmount: number | null
-  dueDate: Date | null
-  interestRate: number | null
+  originalCreditor: string | null
+  debtType: $Enums.DebtType | null
+  status: $Enums.DebtStatus | null
+  originalAmount: runtime.Decimal | null
+  currentAmount: runtime.Decimal | null
+  iofAmount: runtime.Decimal | null
+  interestRate: runtime.Decimal | null
+  cetRate: runtime.Decimal | null
   remainingInstallments: number | null
-  status: string | null
-  debtType: string | null
+  dueDate: Date | null
+  customInstallment: runtime.Decimal | null
+  haircutDiscount: runtime.Decimal | null
+  informalContact: string | null
   createdAt: Date | null
   updatedAt: Date | null
-  userId: string | null
 }
 
 export type DebtMaxAggregateOutputType = {
   id: string | null
+  userId: string | null
   description: string | null
-  originalAmount: number | null
-  currentAmount: number | null
-  dueDate: Date | null
-  interestRate: number | null
+  originalCreditor: string | null
+  debtType: $Enums.DebtType | null
+  status: $Enums.DebtStatus | null
+  originalAmount: runtime.Decimal | null
+  currentAmount: runtime.Decimal | null
+  iofAmount: runtime.Decimal | null
+  interestRate: runtime.Decimal | null
+  cetRate: runtime.Decimal | null
   remainingInstallments: number | null
-  status: string | null
-  debtType: string | null
+  dueDate: Date | null
+  customInstallment: runtime.Decimal | null
+  haircutDiscount: runtime.Decimal | null
+  informalContact: string | null
   createdAt: Date | null
   updatedAt: Date | null
-  userId: string | null
 }
 
 export type DebtCountAggregateOutputType = {
   id: number
+  userId: number
   description: number
+  originalCreditor: number
+  debtType: number
+  status: number
   originalAmount: number
   currentAmount: number
-  dueDate: number
+  iofAmount: number
   interestRate: number
+  cetRate: number
   remainingInstallments: number
-  status: number
-  debtType: number
+  dueDate: number
+  customInstallment: number
+  haircutDiscount: number
+  informalContact: number
   createdAt: number
   updatedAt: number
-  userId: number
   _all: number
 }
 
@@ -90,60 +116,86 @@ export type DebtCountAggregateOutputType = {
 export type DebtAvgAggregateInputType = {
   originalAmount?: true
   currentAmount?: true
+  iofAmount?: true
   interestRate?: true
+  cetRate?: true
   remainingInstallments?: true
+  customInstallment?: true
+  haircutDiscount?: true
 }
 
 export type DebtSumAggregateInputType = {
   originalAmount?: true
   currentAmount?: true
+  iofAmount?: true
   interestRate?: true
+  cetRate?: true
   remainingInstallments?: true
+  customInstallment?: true
+  haircutDiscount?: true
 }
 
 export type DebtMinAggregateInputType = {
   id?: true
+  userId?: true
   description?: true
+  originalCreditor?: true
+  debtType?: true
+  status?: true
   originalAmount?: true
   currentAmount?: true
-  dueDate?: true
+  iofAmount?: true
   interestRate?: true
+  cetRate?: true
   remainingInstallments?: true
-  status?: true
-  debtType?: true
+  dueDate?: true
+  customInstallment?: true
+  haircutDiscount?: true
+  informalContact?: true
   createdAt?: true
   updatedAt?: true
-  userId?: true
 }
 
 export type DebtMaxAggregateInputType = {
   id?: true
+  userId?: true
   description?: true
+  originalCreditor?: true
+  debtType?: true
+  status?: true
   originalAmount?: true
   currentAmount?: true
-  dueDate?: true
+  iofAmount?: true
   interestRate?: true
+  cetRate?: true
   remainingInstallments?: true
-  status?: true
-  debtType?: true
+  dueDate?: true
+  customInstallment?: true
+  haircutDiscount?: true
+  informalContact?: true
   createdAt?: true
   updatedAt?: true
-  userId?: true
 }
 
 export type DebtCountAggregateInputType = {
   id?: true
+  userId?: true
   description?: true
+  originalCreditor?: true
+  debtType?: true
+  status?: true
   originalAmount?: true
   currentAmount?: true
-  dueDate?: true
+  iofAmount?: true
   interestRate?: true
+  cetRate?: true
   remainingInstallments?: true
-  status?: true
-  debtType?: true
+  dueDate?: true
+  customInstallment?: true
+  haircutDiscount?: true
+  informalContact?: true
   createdAt?: true
   updatedAt?: true
-  userId?: true
   _all?: true
 }
 
@@ -235,17 +287,23 @@ export type DebtGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
 
 export type DebtGroupByOutputType = {
   id: string
+  userId: string
   description: string
-  originalAmount: number
-  currentAmount: number
-  dueDate: Date
-  interestRate: number
+  originalCreditor: string | null
+  debtType: $Enums.DebtType
+  status: $Enums.DebtStatus
+  originalAmount: runtime.Decimal
+  currentAmount: runtime.Decimal
+  iofAmount: runtime.Decimal | null
+  interestRate: runtime.Decimal
+  cetRate: runtime.Decimal | null
   remainingInstallments: number
-  status: string
-  debtType: string
+  dueDate: Date
+  customInstallment: runtime.Decimal | null
+  haircutDiscount: runtime.Decimal | null
+  informalContact: string | null
   createdAt: Date
   updatedAt: Date
-  userId: string
   _count: DebtCountAggregateOutputType | null
   _avg: DebtAvgAggregateOutputType | null
   _sum: DebtSumAggregateOutputType | null
@@ -273,33 +331,45 @@ export type DebtWhereInput = {
   OR?: Prisma.DebtWhereInput[]
   NOT?: Prisma.DebtWhereInput | Prisma.DebtWhereInput[]
   id?: Prisma.StringFilter<"Debt"> | string
+  userId?: Prisma.StringFilter<"Debt"> | string
   description?: Prisma.StringFilter<"Debt"> | string
-  originalAmount?: Prisma.FloatFilter<"Debt"> | number
-  currentAmount?: Prisma.FloatFilter<"Debt"> | number
-  dueDate?: Prisma.DateTimeFilter<"Debt"> | Date | string
-  interestRate?: Prisma.FloatFilter<"Debt"> | number
+  originalCreditor?: Prisma.StringNullableFilter<"Debt"> | string | null
+  debtType?: Prisma.EnumDebtTypeFilter<"Debt"> | $Enums.DebtType
+  status?: Prisma.EnumDebtStatusFilter<"Debt"> | $Enums.DebtStatus
+  originalAmount?: Prisma.DecimalFilter<"Debt"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  currentAmount?: Prisma.DecimalFilter<"Debt"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  iofAmount?: Prisma.DecimalNullableFilter<"Debt"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  interestRate?: Prisma.DecimalFilter<"Debt"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  cetRate?: Prisma.DecimalNullableFilter<"Debt"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   remainingInstallments?: Prisma.IntFilter<"Debt"> | number
-  status?: Prisma.StringFilter<"Debt"> | string
-  debtType?: Prisma.StringFilter<"Debt"> | string
+  dueDate?: Prisma.DateTimeFilter<"Debt"> | Date | string
+  customInstallment?: Prisma.DecimalNullableFilter<"Debt"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  haircutDiscount?: Prisma.DecimalNullableFilter<"Debt"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  informalContact?: Prisma.StringNullableFilter<"Debt"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Debt"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Debt"> | Date | string
-  userId?: Prisma.StringFilter<"Debt"> | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }
 
 export type DebtOrderByWithRelationInput = {
   id?: Prisma.SortOrder
+  userId?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  originalCreditor?: Prisma.SortOrderInput | Prisma.SortOrder
+  debtType?: Prisma.SortOrder
+  status?: Prisma.SortOrder
   originalAmount?: Prisma.SortOrder
   currentAmount?: Prisma.SortOrder
-  dueDate?: Prisma.SortOrder
+  iofAmount?: Prisma.SortOrderInput | Prisma.SortOrder
   interestRate?: Prisma.SortOrder
+  cetRate?: Prisma.SortOrderInput | Prisma.SortOrder
   remainingInstallments?: Prisma.SortOrder
-  status?: Prisma.SortOrder
-  debtType?: Prisma.SortOrder
+  dueDate?: Prisma.SortOrder
+  customInstallment?: Prisma.SortOrderInput | Prisma.SortOrder
+  haircutDiscount?: Prisma.SortOrderInput | Prisma.SortOrder
+  informalContact?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
 }
 
@@ -308,33 +378,45 @@ export type DebtWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.DebtWhereInput | Prisma.DebtWhereInput[]
   OR?: Prisma.DebtWhereInput[]
   NOT?: Prisma.DebtWhereInput | Prisma.DebtWhereInput[]
+  userId?: Prisma.StringFilter<"Debt"> | string
   description?: Prisma.StringFilter<"Debt"> | string
-  originalAmount?: Prisma.FloatFilter<"Debt"> | number
-  currentAmount?: Prisma.FloatFilter<"Debt"> | number
-  dueDate?: Prisma.DateTimeFilter<"Debt"> | Date | string
-  interestRate?: Prisma.FloatFilter<"Debt"> | number
+  originalCreditor?: Prisma.StringNullableFilter<"Debt"> | string | null
+  debtType?: Prisma.EnumDebtTypeFilter<"Debt"> | $Enums.DebtType
+  status?: Prisma.EnumDebtStatusFilter<"Debt"> | $Enums.DebtStatus
+  originalAmount?: Prisma.DecimalFilter<"Debt"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  currentAmount?: Prisma.DecimalFilter<"Debt"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  iofAmount?: Prisma.DecimalNullableFilter<"Debt"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  interestRate?: Prisma.DecimalFilter<"Debt"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  cetRate?: Prisma.DecimalNullableFilter<"Debt"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   remainingInstallments?: Prisma.IntFilter<"Debt"> | number
-  status?: Prisma.StringFilter<"Debt"> | string
-  debtType?: Prisma.StringFilter<"Debt"> | string
+  dueDate?: Prisma.DateTimeFilter<"Debt"> | Date | string
+  customInstallment?: Prisma.DecimalNullableFilter<"Debt"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  haircutDiscount?: Prisma.DecimalNullableFilter<"Debt"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  informalContact?: Prisma.StringNullableFilter<"Debt"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Debt"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Debt"> | Date | string
-  userId?: Prisma.StringFilter<"Debt"> | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }, "id">
 
 export type DebtOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
+  userId?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  originalCreditor?: Prisma.SortOrderInput | Prisma.SortOrder
+  debtType?: Prisma.SortOrder
+  status?: Prisma.SortOrder
   originalAmount?: Prisma.SortOrder
   currentAmount?: Prisma.SortOrder
-  dueDate?: Prisma.SortOrder
+  iofAmount?: Prisma.SortOrderInput | Prisma.SortOrder
   interestRate?: Prisma.SortOrder
+  cetRate?: Prisma.SortOrderInput | Prisma.SortOrder
   remainingInstallments?: Prisma.SortOrder
-  status?: Prisma.SortOrder
-  debtType?: Prisma.SortOrder
+  dueDate?: Prisma.SortOrder
+  customInstallment?: Prisma.SortOrderInput | Prisma.SortOrder
+  haircutDiscount?: Prisma.SortOrderInput | Prisma.SortOrder
+  informalContact?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
   _count?: Prisma.DebtCountOrderByAggregateInput
   _avg?: Prisma.DebtAvgOrderByAggregateInput
   _max?: Prisma.DebtMaxOrderByAggregateInput
@@ -347,29 +429,41 @@ export type DebtScalarWhereWithAggregatesInput = {
   OR?: Prisma.DebtScalarWhereWithAggregatesInput[]
   NOT?: Prisma.DebtScalarWhereWithAggregatesInput | Prisma.DebtScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Debt"> | string
+  userId?: Prisma.StringWithAggregatesFilter<"Debt"> | string
   description?: Prisma.StringWithAggregatesFilter<"Debt"> | string
-  originalAmount?: Prisma.FloatWithAggregatesFilter<"Debt"> | number
-  currentAmount?: Prisma.FloatWithAggregatesFilter<"Debt"> | number
-  dueDate?: Prisma.DateTimeWithAggregatesFilter<"Debt"> | Date | string
-  interestRate?: Prisma.FloatWithAggregatesFilter<"Debt"> | number
+  originalCreditor?: Prisma.StringNullableWithAggregatesFilter<"Debt"> | string | null
+  debtType?: Prisma.EnumDebtTypeWithAggregatesFilter<"Debt"> | $Enums.DebtType
+  status?: Prisma.EnumDebtStatusWithAggregatesFilter<"Debt"> | $Enums.DebtStatus
+  originalAmount?: Prisma.DecimalWithAggregatesFilter<"Debt"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  currentAmount?: Prisma.DecimalWithAggregatesFilter<"Debt"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  iofAmount?: Prisma.DecimalNullableWithAggregatesFilter<"Debt"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  interestRate?: Prisma.DecimalWithAggregatesFilter<"Debt"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  cetRate?: Prisma.DecimalNullableWithAggregatesFilter<"Debt"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   remainingInstallments?: Prisma.IntWithAggregatesFilter<"Debt"> | number
-  status?: Prisma.StringWithAggregatesFilter<"Debt"> | string
-  debtType?: Prisma.StringWithAggregatesFilter<"Debt"> | string
+  dueDate?: Prisma.DateTimeWithAggregatesFilter<"Debt"> | Date | string
+  customInstallment?: Prisma.DecimalNullableWithAggregatesFilter<"Debt"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  haircutDiscount?: Prisma.DecimalNullableWithAggregatesFilter<"Debt"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  informalContact?: Prisma.StringNullableWithAggregatesFilter<"Debt"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Debt"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Debt"> | Date | string
-  userId?: Prisma.StringWithAggregatesFilter<"Debt"> | string
 }
 
 export type DebtCreateInput = {
   id?: string
   description: string
-  originalAmount: number
-  currentAmount: number
-  dueDate: Date | string
-  interestRate: number
+  originalCreditor?: string | null
+  debtType?: $Enums.DebtType
+  status?: $Enums.DebtStatus
+  originalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  currentAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  iofAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  interestRate: runtime.Decimal | runtime.DecimalJsLike | number | string
+  cetRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   remainingInstallments: number
-  status?: string
-  debtType?: string
+  dueDate: Date | string
+  customInstallment?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  haircutDiscount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  informalContact?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutDebtsInput
@@ -377,29 +471,41 @@ export type DebtCreateInput = {
 
 export type DebtUncheckedCreateInput = {
   id?: string
+  userId: string
   description: string
-  originalAmount: number
-  currentAmount: number
-  dueDate: Date | string
-  interestRate: number
+  originalCreditor?: string | null
+  debtType?: $Enums.DebtType
+  status?: $Enums.DebtStatus
+  originalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  currentAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  iofAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  interestRate: runtime.Decimal | runtime.DecimalJsLike | number | string
+  cetRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   remainingInstallments: number
-  status?: string
-  debtType?: string
+  dueDate: Date | string
+  customInstallment?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  haircutDiscount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  informalContact?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  userId: string
 }
 
 export type DebtUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  originalAmount?: Prisma.FloatFieldUpdateOperationsInput | number
-  currentAmount?: Prisma.FloatFieldUpdateOperationsInput | number
-  dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  interestRate?: Prisma.FloatFieldUpdateOperationsInput | number
+  originalCreditor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  debtType?: Prisma.EnumDebtTypeFieldUpdateOperationsInput | $Enums.DebtType
+  status?: Prisma.EnumDebtStatusFieldUpdateOperationsInput | $Enums.DebtStatus
+  originalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  currentAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  iofAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  interestRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  cetRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   remainingInstallments?: Prisma.IntFieldUpdateOperationsInput | number
-  status?: Prisma.StringFieldUpdateOperationsInput | string
-  debtType?: Prisma.StringFieldUpdateOperationsInput | string
+  dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  customInstallment?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  haircutDiscount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  informalContact?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutDebtsNestedInput
@@ -407,61 +513,85 @@ export type DebtUpdateInput = {
 
 export type DebtUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  originalAmount?: Prisma.FloatFieldUpdateOperationsInput | number
-  currentAmount?: Prisma.FloatFieldUpdateOperationsInput | number
-  dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  interestRate?: Prisma.FloatFieldUpdateOperationsInput | number
+  originalCreditor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  debtType?: Prisma.EnumDebtTypeFieldUpdateOperationsInput | $Enums.DebtType
+  status?: Prisma.EnumDebtStatusFieldUpdateOperationsInput | $Enums.DebtStatus
+  originalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  currentAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  iofAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  interestRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  cetRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   remainingInstallments?: Prisma.IntFieldUpdateOperationsInput | number
-  status?: Prisma.StringFieldUpdateOperationsInput | string
-  debtType?: Prisma.StringFieldUpdateOperationsInput | string
+  dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  customInstallment?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  haircutDiscount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  informalContact?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type DebtCreateManyInput = {
   id?: string
+  userId: string
   description: string
-  originalAmount: number
-  currentAmount: number
-  dueDate: Date | string
-  interestRate: number
+  originalCreditor?: string | null
+  debtType?: $Enums.DebtType
+  status?: $Enums.DebtStatus
+  originalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  currentAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  iofAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  interestRate: runtime.Decimal | runtime.DecimalJsLike | number | string
+  cetRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   remainingInstallments: number
-  status?: string
-  debtType?: string
+  dueDate: Date | string
+  customInstallment?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  haircutDiscount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  informalContact?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  userId: string
 }
 
 export type DebtUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  originalAmount?: Prisma.FloatFieldUpdateOperationsInput | number
-  currentAmount?: Prisma.FloatFieldUpdateOperationsInput | number
-  dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  interestRate?: Prisma.FloatFieldUpdateOperationsInput | number
+  originalCreditor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  debtType?: Prisma.EnumDebtTypeFieldUpdateOperationsInput | $Enums.DebtType
+  status?: Prisma.EnumDebtStatusFieldUpdateOperationsInput | $Enums.DebtStatus
+  originalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  currentAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  iofAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  interestRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  cetRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   remainingInstallments?: Prisma.IntFieldUpdateOperationsInput | number
-  status?: Prisma.StringFieldUpdateOperationsInput | string
-  debtType?: Prisma.StringFieldUpdateOperationsInput | string
+  dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  customInstallment?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  haircutDiscount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  informalContact?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type DebtUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  originalAmount?: Prisma.FloatFieldUpdateOperationsInput | number
-  currentAmount?: Prisma.FloatFieldUpdateOperationsInput | number
-  dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  interestRate?: Prisma.FloatFieldUpdateOperationsInput | number
+  originalCreditor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  debtType?: Prisma.EnumDebtTypeFieldUpdateOperationsInput | $Enums.DebtType
+  status?: Prisma.EnumDebtStatusFieldUpdateOperationsInput | $Enums.DebtStatus
+  originalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  currentAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  iofAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  interestRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  cetRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   remainingInstallments?: Prisma.IntFieldUpdateOperationsInput | number
-  status?: Prisma.StringFieldUpdateOperationsInput | string
-  debtType?: Prisma.StringFieldUpdateOperationsInput | string
+  dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  customInstallment?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  haircutDiscount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  informalContact?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type DebtListRelationFilter = {
@@ -476,61 +606,87 @@ export type DebtOrderByRelationAggregateInput = {
 
 export type DebtCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  userId?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  originalCreditor?: Prisma.SortOrder
+  debtType?: Prisma.SortOrder
+  status?: Prisma.SortOrder
   originalAmount?: Prisma.SortOrder
   currentAmount?: Prisma.SortOrder
-  dueDate?: Prisma.SortOrder
+  iofAmount?: Prisma.SortOrder
   interestRate?: Prisma.SortOrder
+  cetRate?: Prisma.SortOrder
   remainingInstallments?: Prisma.SortOrder
-  status?: Prisma.SortOrder
-  debtType?: Prisma.SortOrder
+  dueDate?: Prisma.SortOrder
+  customInstallment?: Prisma.SortOrder
+  haircutDiscount?: Prisma.SortOrder
+  informalContact?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
 }
 
 export type DebtAvgOrderByAggregateInput = {
   originalAmount?: Prisma.SortOrder
   currentAmount?: Prisma.SortOrder
+  iofAmount?: Prisma.SortOrder
   interestRate?: Prisma.SortOrder
+  cetRate?: Prisma.SortOrder
   remainingInstallments?: Prisma.SortOrder
+  customInstallment?: Prisma.SortOrder
+  haircutDiscount?: Prisma.SortOrder
 }
 
 export type DebtMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  userId?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  originalCreditor?: Prisma.SortOrder
+  debtType?: Prisma.SortOrder
+  status?: Prisma.SortOrder
   originalAmount?: Prisma.SortOrder
   currentAmount?: Prisma.SortOrder
-  dueDate?: Prisma.SortOrder
+  iofAmount?: Prisma.SortOrder
   interestRate?: Prisma.SortOrder
+  cetRate?: Prisma.SortOrder
   remainingInstallments?: Prisma.SortOrder
-  status?: Prisma.SortOrder
-  debtType?: Prisma.SortOrder
+  dueDate?: Prisma.SortOrder
+  customInstallment?: Prisma.SortOrder
+  haircutDiscount?: Prisma.SortOrder
+  informalContact?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
 }
 
 export type DebtMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  userId?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  originalCreditor?: Prisma.SortOrder
+  debtType?: Prisma.SortOrder
+  status?: Prisma.SortOrder
   originalAmount?: Prisma.SortOrder
   currentAmount?: Prisma.SortOrder
-  dueDate?: Prisma.SortOrder
+  iofAmount?: Prisma.SortOrder
   interestRate?: Prisma.SortOrder
+  cetRate?: Prisma.SortOrder
   remainingInstallments?: Prisma.SortOrder
-  status?: Prisma.SortOrder
-  debtType?: Prisma.SortOrder
+  dueDate?: Prisma.SortOrder
+  customInstallment?: Prisma.SortOrder
+  haircutDiscount?: Prisma.SortOrder
+  informalContact?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
 }
 
 export type DebtSumOrderByAggregateInput = {
   originalAmount?: Prisma.SortOrder
   currentAmount?: Prisma.SortOrder
+  iofAmount?: Prisma.SortOrder
   interestRate?: Prisma.SortOrder
+  cetRate?: Prisma.SortOrder
   remainingInstallments?: Prisma.SortOrder
+  customInstallment?: Prisma.SortOrder
+  haircutDiscount?: Prisma.SortOrder
 }
 
 export type DebtCreateNestedManyWithoutUserInput = {
@@ -575,12 +731,28 @@ export type DebtUncheckedUpdateManyWithoutUserNestedInput = {
   deleteMany?: Prisma.DebtScalarWhereInput | Prisma.DebtScalarWhereInput[]
 }
 
-export type FloatFieldUpdateOperationsInput = {
-  set?: number
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
+export type EnumDebtTypeFieldUpdateOperationsInput = {
+  set?: $Enums.DebtType
+}
+
+export type EnumDebtStatusFieldUpdateOperationsInput = {
+  set?: $Enums.DebtStatus
+}
+
+export type DecimalFieldUpdateOperationsInput = {
+  set?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  increment?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  decrement?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  multiply?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  divide?: runtime.Decimal | runtime.DecimalJsLike | number | string
+}
+
+export type NullableDecimalFieldUpdateOperationsInput = {
+  set?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  increment?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  decrement?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  multiply?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  divide?: runtime.Decimal | runtime.DecimalJsLike | number | string
 }
 
 export type IntFieldUpdateOperationsInput = {
@@ -594,13 +766,19 @@ export type IntFieldUpdateOperationsInput = {
 export type DebtCreateWithoutUserInput = {
   id?: string
   description: string
-  originalAmount: number
-  currentAmount: number
-  dueDate: Date | string
-  interestRate: number
+  originalCreditor?: string | null
+  debtType?: $Enums.DebtType
+  status?: $Enums.DebtStatus
+  originalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  currentAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  iofAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  interestRate: runtime.Decimal | runtime.DecimalJsLike | number | string
+  cetRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   remainingInstallments: number
-  status?: string
-  debtType?: string
+  dueDate: Date | string
+  customInstallment?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  haircutDiscount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  informalContact?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -608,13 +786,19 @@ export type DebtCreateWithoutUserInput = {
 export type DebtUncheckedCreateWithoutUserInput = {
   id?: string
   description: string
-  originalAmount: number
-  currentAmount: number
-  dueDate: Date | string
-  interestRate: number
+  originalCreditor?: string | null
+  debtType?: $Enums.DebtType
+  status?: $Enums.DebtStatus
+  originalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  currentAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  iofAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  interestRate: runtime.Decimal | runtime.DecimalJsLike | number | string
+  cetRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   remainingInstallments: number
-  status?: string
-  debtType?: string
+  dueDate: Date | string
+  customInstallment?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  haircutDiscount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  informalContact?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -650,29 +834,41 @@ export type DebtScalarWhereInput = {
   OR?: Prisma.DebtScalarWhereInput[]
   NOT?: Prisma.DebtScalarWhereInput | Prisma.DebtScalarWhereInput[]
   id?: Prisma.StringFilter<"Debt"> | string
+  userId?: Prisma.StringFilter<"Debt"> | string
   description?: Prisma.StringFilter<"Debt"> | string
-  originalAmount?: Prisma.FloatFilter<"Debt"> | number
-  currentAmount?: Prisma.FloatFilter<"Debt"> | number
-  dueDate?: Prisma.DateTimeFilter<"Debt"> | Date | string
-  interestRate?: Prisma.FloatFilter<"Debt"> | number
+  originalCreditor?: Prisma.StringNullableFilter<"Debt"> | string | null
+  debtType?: Prisma.EnumDebtTypeFilter<"Debt"> | $Enums.DebtType
+  status?: Prisma.EnumDebtStatusFilter<"Debt"> | $Enums.DebtStatus
+  originalAmount?: Prisma.DecimalFilter<"Debt"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  currentAmount?: Prisma.DecimalFilter<"Debt"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  iofAmount?: Prisma.DecimalNullableFilter<"Debt"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  interestRate?: Prisma.DecimalFilter<"Debt"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  cetRate?: Prisma.DecimalNullableFilter<"Debt"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   remainingInstallments?: Prisma.IntFilter<"Debt"> | number
-  status?: Prisma.StringFilter<"Debt"> | string
-  debtType?: Prisma.StringFilter<"Debt"> | string
+  dueDate?: Prisma.DateTimeFilter<"Debt"> | Date | string
+  customInstallment?: Prisma.DecimalNullableFilter<"Debt"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  haircutDiscount?: Prisma.DecimalNullableFilter<"Debt"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  informalContact?: Prisma.StringNullableFilter<"Debt"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Debt"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Debt"> | Date | string
-  userId?: Prisma.StringFilter<"Debt"> | string
 }
 
 export type DebtCreateManyUserInput = {
   id?: string
   description: string
-  originalAmount: number
-  currentAmount: number
-  dueDate: Date | string
-  interestRate: number
+  originalCreditor?: string | null
+  debtType?: $Enums.DebtType
+  status?: $Enums.DebtStatus
+  originalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  currentAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  iofAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  interestRate: runtime.Decimal | runtime.DecimalJsLike | number | string
+  cetRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   remainingInstallments: number
-  status?: string
-  debtType?: string
+  dueDate: Date | string
+  customInstallment?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  haircutDiscount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  informalContact?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -680,13 +876,19 @@ export type DebtCreateManyUserInput = {
 export type DebtUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  originalAmount?: Prisma.FloatFieldUpdateOperationsInput | number
-  currentAmount?: Prisma.FloatFieldUpdateOperationsInput | number
-  dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  interestRate?: Prisma.FloatFieldUpdateOperationsInput | number
+  originalCreditor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  debtType?: Prisma.EnumDebtTypeFieldUpdateOperationsInput | $Enums.DebtType
+  status?: Prisma.EnumDebtStatusFieldUpdateOperationsInput | $Enums.DebtStatus
+  originalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  currentAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  iofAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  interestRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  cetRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   remainingInstallments?: Prisma.IntFieldUpdateOperationsInput | number
-  status?: Prisma.StringFieldUpdateOperationsInput | string
-  debtType?: Prisma.StringFieldUpdateOperationsInput | string
+  dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  customInstallment?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  haircutDiscount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  informalContact?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -694,13 +896,19 @@ export type DebtUpdateWithoutUserInput = {
 export type DebtUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  originalAmount?: Prisma.FloatFieldUpdateOperationsInput | number
-  currentAmount?: Prisma.FloatFieldUpdateOperationsInput | number
-  dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  interestRate?: Prisma.FloatFieldUpdateOperationsInput | number
+  originalCreditor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  debtType?: Prisma.EnumDebtTypeFieldUpdateOperationsInput | $Enums.DebtType
+  status?: Prisma.EnumDebtStatusFieldUpdateOperationsInput | $Enums.DebtStatus
+  originalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  currentAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  iofAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  interestRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  cetRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   remainingInstallments?: Prisma.IntFieldUpdateOperationsInput | number
-  status?: Prisma.StringFieldUpdateOperationsInput | string
-  debtType?: Prisma.StringFieldUpdateOperationsInput | string
+  dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  customInstallment?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  haircutDiscount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  informalContact?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -708,13 +916,19 @@ export type DebtUncheckedUpdateWithoutUserInput = {
 export type DebtUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  originalAmount?: Prisma.FloatFieldUpdateOperationsInput | number
-  currentAmount?: Prisma.FloatFieldUpdateOperationsInput | number
-  dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  interestRate?: Prisma.FloatFieldUpdateOperationsInput | number
+  originalCreditor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  debtType?: Prisma.EnumDebtTypeFieldUpdateOperationsInput | $Enums.DebtType
+  status?: Prisma.EnumDebtStatusFieldUpdateOperationsInput | $Enums.DebtStatus
+  originalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  currentAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  iofAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  interestRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  cetRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   remainingInstallments?: Prisma.IntFieldUpdateOperationsInput | number
-  status?: Prisma.StringFieldUpdateOperationsInput | string
-  debtType?: Prisma.StringFieldUpdateOperationsInput | string
+  dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  customInstallment?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  haircutDiscount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  informalContact?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -723,68 +937,92 @@ export type DebtUncheckedUpdateManyWithoutUserInput = {
 
 export type DebtSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  userId?: boolean
   description?: boolean
+  originalCreditor?: boolean
+  debtType?: boolean
+  status?: boolean
   originalAmount?: boolean
   currentAmount?: boolean
-  dueDate?: boolean
+  iofAmount?: boolean
   interestRate?: boolean
+  cetRate?: boolean
   remainingInstallments?: boolean
-  status?: boolean
-  debtType?: boolean
+  dueDate?: boolean
+  customInstallment?: boolean
+  haircutDiscount?: boolean
+  informalContact?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  userId?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["debt"]>
 
 export type DebtSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  userId?: boolean
   description?: boolean
+  originalCreditor?: boolean
+  debtType?: boolean
+  status?: boolean
   originalAmount?: boolean
   currentAmount?: boolean
-  dueDate?: boolean
+  iofAmount?: boolean
   interestRate?: boolean
+  cetRate?: boolean
   remainingInstallments?: boolean
-  status?: boolean
-  debtType?: boolean
+  dueDate?: boolean
+  customInstallment?: boolean
+  haircutDiscount?: boolean
+  informalContact?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  userId?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["debt"]>
 
 export type DebtSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  userId?: boolean
   description?: boolean
+  originalCreditor?: boolean
+  debtType?: boolean
+  status?: boolean
   originalAmount?: boolean
   currentAmount?: boolean
-  dueDate?: boolean
+  iofAmount?: boolean
   interestRate?: boolean
+  cetRate?: boolean
   remainingInstallments?: boolean
-  status?: boolean
-  debtType?: boolean
+  dueDate?: boolean
+  customInstallment?: boolean
+  haircutDiscount?: boolean
+  informalContact?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  userId?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["debt"]>
 
 export type DebtSelectScalar = {
   id?: boolean
+  userId?: boolean
   description?: boolean
+  originalCreditor?: boolean
+  debtType?: boolean
+  status?: boolean
   originalAmount?: boolean
   currentAmount?: boolean
-  dueDate?: boolean
+  iofAmount?: boolean
   interestRate?: boolean
+  cetRate?: boolean
   remainingInstallments?: boolean
-  status?: boolean
-  debtType?: boolean
+  dueDate?: boolean
+  customInstallment?: boolean
+  haircutDiscount?: boolean
+  informalContact?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  userId?: boolean
 }
 
-export type DebtOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "description" | "originalAmount" | "currentAmount" | "dueDate" | "interestRate" | "remainingInstallments" | "status" | "debtType" | "createdAt" | "updatedAt" | "userId", ExtArgs["result"]["debt"]>
+export type DebtOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "description" | "originalCreditor" | "debtType" | "status" | "originalAmount" | "currentAmount" | "iofAmount" | "interestRate" | "cetRate" | "remainingInstallments" | "dueDate" | "customInstallment" | "haircutDiscount" | "informalContact" | "createdAt" | "updatedAt", ExtArgs["result"]["debt"]>
 export type DebtInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
@@ -802,17 +1040,23 @@ export type $DebtPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
+    userId: string
     description: string
-    originalAmount: number
-    currentAmount: number
-    dueDate: Date
-    interestRate: number
+    originalCreditor: string | null
+    debtType: $Enums.DebtType
+    status: $Enums.DebtStatus
+    originalAmount: runtime.Decimal
+    currentAmount: runtime.Decimal
+    iofAmount: runtime.Decimal | null
+    interestRate: runtime.Decimal
+    cetRate: runtime.Decimal | null
     remainingInstallments: number
-    status: string
-    debtType: string
+    dueDate: Date
+    customInstallment: runtime.Decimal | null
+    haircutDiscount: runtime.Decimal | null
+    informalContact: string | null
     createdAt: Date
     updatedAt: Date
-    userId: string
   }, ExtArgs["result"]["debt"]>
   composites: {}
 }
@@ -1238,17 +1482,23 @@ export interface Prisma__DebtClient<T, Null = never, ExtArgs extends runtime.Typ
  */
 export interface DebtFieldRefs {
   readonly id: Prisma.FieldRef<"Debt", 'String'>
+  readonly userId: Prisma.FieldRef<"Debt", 'String'>
   readonly description: Prisma.FieldRef<"Debt", 'String'>
-  readonly originalAmount: Prisma.FieldRef<"Debt", 'Float'>
-  readonly currentAmount: Prisma.FieldRef<"Debt", 'Float'>
-  readonly dueDate: Prisma.FieldRef<"Debt", 'DateTime'>
-  readonly interestRate: Prisma.FieldRef<"Debt", 'Float'>
+  readonly originalCreditor: Prisma.FieldRef<"Debt", 'String'>
+  readonly debtType: Prisma.FieldRef<"Debt", 'DebtType'>
+  readonly status: Prisma.FieldRef<"Debt", 'DebtStatus'>
+  readonly originalAmount: Prisma.FieldRef<"Debt", 'Decimal'>
+  readonly currentAmount: Prisma.FieldRef<"Debt", 'Decimal'>
+  readonly iofAmount: Prisma.FieldRef<"Debt", 'Decimal'>
+  readonly interestRate: Prisma.FieldRef<"Debt", 'Decimal'>
+  readonly cetRate: Prisma.FieldRef<"Debt", 'Decimal'>
   readonly remainingInstallments: Prisma.FieldRef<"Debt", 'Int'>
-  readonly status: Prisma.FieldRef<"Debt", 'String'>
-  readonly debtType: Prisma.FieldRef<"Debt", 'String'>
+  readonly dueDate: Prisma.FieldRef<"Debt", 'DateTime'>
+  readonly customInstallment: Prisma.FieldRef<"Debt", 'Decimal'>
+  readonly haircutDiscount: Prisma.FieldRef<"Debt", 'Decimal'>
+  readonly informalContact: Prisma.FieldRef<"Debt", 'String'>
   readonly createdAt: Prisma.FieldRef<"Debt", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Debt", 'DateTime'>
-  readonly userId: Prisma.FieldRef<"Debt", 'String'>
 }
     
 

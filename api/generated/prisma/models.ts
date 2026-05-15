@@ -10,4 +10,6 @@
  */
 export type * from './models/User'
 export type * from './models/Debt'
+export type * from './models/Income'
+export type * from './models/Expense'
 export type * from './commonInputTypes'
