@@ -8,8 +8,6 @@ export class PrismaService
   extends PrismaClient
   implements OnModuleInit, OnModuleDestroy
 {
-  income: any;
-  expense: any;
   constructor() {
     // No Prisma 7, instanciamos a conexão nativa com a URL do seu .env
     const connectionString = process.env.DATABASE_URL;

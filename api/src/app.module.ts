@@ -7,6 +7,9 @@ import { PrismaModule } from './prisma/prisma.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DebtsModule } from './modules/debts/debts.module';
+import { IncomeModule } from './modules/income/income.module';
+import { ExpenseModule } from './modules/expense/expense.module';
+import { AnalyticsModule } from './modules/analytics/analytics.module';
 
 @Module({
   imports: [
@@ -15,7 +18,10 @@ import { DebtsModule } from './modules/debts/debts.module';
     PrismaModule, 
     AuthModule,
     DebtsModule,
-    ProtectedModule, 
+    ProtectedModule,
+    IncomeModule,
+    ExpenseModule,
+    AnalyticsModule, 
   ],
   controllers: [AppController],
   providers: [AppService],

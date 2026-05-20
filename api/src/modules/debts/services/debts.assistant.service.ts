@@ -1,14 +1,16 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Debt } from '@prisma/client'; 
-import { PrismaService } from '../../../prisma/prisma.service'; 
-import { DebtStatus } from '../dto/create-debt.dto';
+import { Debt, DebtStatus } from '@prisma/client';
+import { PrismaService } from '../../../prisma/prisma.service';
 import { PrioritizedDebt } from '../interfaces/prioritized-debt.interface';
 
 @Injectable()
 export class DebtAssistantService {
   constructor(private prisma: PrismaService) {}
 
-  async analyzeDebts(userId: string, availableMonthlyAmount: number): Promise<{
+  async analyzeDebts(
+    userId: string,
+    availableMonthlyAmount: number,
+  ): Promise<{
     message: string;
     totalDebts: number;
     availableMonthlyAmount: number;
@@ -22,7 +24,9 @@ export class DebtAssistantService {
     });
 
     if (!debts || debts.length === 0) {
-      throw new NotFoundException('Nenhuma dívida ativa encontrada para este usuário.');
+      throw new NotFoundException(
+        'Nenhuma dívida ativa encontrada para este usuário.',
+      );
     }
 
     const prioritized = this.prioritizeDebts(debts);
@@ -31,13 +35,14 @@ export class DebtAssistantService {
       message: 'Dívidas priorizadas com base em juros, parcelas e vencimento.',
       totalDebts: prioritized.length,
       availableMonthlyAmount,
-      prioritizedDebts: prioritized.map(debt => ({
-        id: String(debt.id), 
-        name: debt.description, 
-        interestRate: Number(debt.interestRate || 0), 
+      prioritizedDebts: prioritized.map((debt) => ({
+        id: String(debt.id),
+        name: debt.description,
+        interestRate: Number(debt.interestRate || 0),
         remainingInstallments: debt.remainingInstallments,
         dueDate: debt.dueDate,
-        monthlyInstallment: Number(debt.currentAmount || 0) / (debt.remainingInstallments || 1),
+        monthlyInstallment:
+          Number(debt.currentAmount || 0) / (debt.remainingInstallments || 1),
       })),
     };
   }
@@ -60,7 +65,8 @@ export class DebtAssistantService {
 
   private prioritizeDebts(debts: Debt[]): Debt[] {
     return debts.sort((a, b) => {
-      const interestDiff = Number(b.interestRate || 0) - Number(a.interestRate || 0);
+      const interestDiff =
+        Number(b.interestRate || 0) - Number(a.interestRate || 0);
       if (interestDiff !== 0) return interestDiff;
 
       const installmentDiff = a.remainingInstallments - b.remainingInstallments;
