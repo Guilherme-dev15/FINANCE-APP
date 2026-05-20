@@ -1,24 +1,42 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-
-import { Controller, Get, Request, UseGuards } from '@nestjs/common';
-import { Request as ExpressRequest } from 'express';
+import {
+  Controller,
+  Get,
+  Request,
+  UseGuards,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { AnalyticsService } from './analytics.service';
-import { JwtStrategy } from '../auth/jwt.strategy';
+import { AuthGuard } from '@nestjs/passport'; // 🛡️ Importação padrão de segurança
+import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 
-@UseGuards(JwtStrategy)
+// Reutilizamos a interface de tipagem estrita
+export interface AuthenticatedRequest extends Request {
+  user: {
+    userId: string;
+    email?: string;
+  };
+}
+
+@ApiTags('Analytics')
+@ApiBearerAuth('JWT-auth') // 🔒 Diz pro Swagger que essa rota exige o Token
+@UseGuards(AuthGuard('jwt')) // O Leão de Chácara que barra quem não tem token
 @Controller('analytics')
 export class AnalyticsController {
   constructor(private readonly analyticsService: AnalyticsService) {}
 
   @Get('cashflow')
-  getCashflowAnalysis(@Request() req: ExpressRequest) {
-    // Alinhado estritamente com o contrato do seu JwtStrategy
-    if (!req.user) {
-      throw new Error('User not authenticated');
+  @ApiOperation({ summary: 'Obter análise de viabilidade financeira (FCF)' })
+  getCashflowAnalysis(@Request() req: AuthenticatedRequest) {
+    const userId = req.user?.userId;
+
+    if (!userId) {
+      throw new HttpException(
+        'Token JWT inválido ou usuário não identificado',
+        HttpStatus.UNAUTHORIZED,
+      );
     }
-    return this.analyticsService.getFinancialViability(
-      (req.user as any).userId,
-    );
+
+    return this.analyticsService.getFinancialViability(userId);
   }
 }
