@@ -7,6 +7,7 @@ import {
   type CreateExpenseData,
 } from "../types/transactions.types";
 import { Modal } from "../../../ui/Modal";
+import { TransactionHistory } from "./TransactionHistory";
 
 export function CashflowDashboard() {
   const [data, setData] = useState<CashflowResponse | null>(null);
@@ -212,6 +213,8 @@ export function CashflowDashboard() {
           </p>
         </div>
       </section>
+      {/* O Ledgder sendo renderizado e reagindo aos novos inputs */}
+      <TransactionHistory onUpdate={fetchAnalytics} />
 
       {/* 🛡️ MODAIS INJETADOS NO DOM */}
 

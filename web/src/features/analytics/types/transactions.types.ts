@@ -16,3 +16,13 @@ export interface CreateExpenseData {
   category: ExpenseCategory;
   date: string;
 }
+
+export interface TransactionRecord {
+  id: string;
+  description: string;
+  amount: number;
+  date: string;
+  createdAt: string;
+  type?: "FIXED" | "VARIABLE";
+  category?: "ESSENTIAL" | "LIFESTYLE" | "WASTE";
+}
