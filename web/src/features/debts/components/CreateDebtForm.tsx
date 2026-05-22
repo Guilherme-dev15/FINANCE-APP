@@ -1,155 +1,207 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { useCreateDebt, useEditDebt } from '../api/useDebts';
+import { type FormEvent, useState } from "react";
+import type { PrioritizedDebt } from "../types/debts.types";
+import { api } from "../../../config/api";
 
-// --- Schema de Validação ---
-const debtSchema = z.object({
-  title: z.string().min(3, 'O título deve ter pelo menos 3 caracteres'),
-  originalAmount: z.number({ message: 'Informe um valor' }).positive('O valor não pode ser zero ou negativo'),
-  interestRate: z.number({ message: 'Informe uma taxa' }).min(0, 'A taxa não pode ser negativa'),
-  remainingInstallments: z.number({ message: 'Informe as parcelas' }).min(1, 'Mínimo de 1 parcela'),
-  dueDate: z.string().min(1, 'A data de vencimento é obrigatória'),
-  debtType: z.enum(['CREDIT_CARD', 'LOAN']),
-  status: z.enum(['pendente', 'em negociação', 'pago']),
-});
-
-type DebtFormData = z.infer<typeof debtSchema>;
-
-// 🚀 Adicionamos initialData para saber se é Edição
 interface CreateDebtFormProps {
-  onSuccessAction?: () => void;
-  initialData?: any | null; 
+  onSuccessAction: () => void;
+  initialData?: PrioritizedDebt | null;
 }
 
-export const CreateDebtForm = ({ onSuccessAction, initialData }: CreateDebtFormProps) => {
-  const { mutateAsync: createDebt, isPending: isCreating } = useCreateDebt();
-  const { mutateAsync: editDebt, isPending: isEditing } = useEditDebt();
-  
-  const isPending = isCreating || isEditing;
-  const isEditMode = !!initialData;
+export function CreateDebtForm({
+  onSuccessAction,
+  initialData,
+}: CreateDebtFormProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // 🚀 Mágica do React Hook Form: Se initialData existir, ele preenche tudo sozinho
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<DebtFormData>({
-    resolver: zodResolver(debtSchema),
-    values: initialData ? {
-      title: initialData.title || initialData.description || '',
-      originalAmount: initialData.originalAmount || initialData.currentBalance || 0,
-      interestRate: (initialData.interestRate || 0) * 100, // Converte 0.05 de volta para 5% na tela
-      remainingInstallments: initialData.remainingInstallments || 1,
-      dueDate: initialData.dueDate ? new Date(initialData.dueDate).toISOString().split('T')[0] : '',
-      debtType: initialData.debtType || 'CREDIT_CARD',
-      status: initialData.status || 'pendente',
-    } : undefined,
-    defaultValues: {
-      debtType: 'CREDIT_CARD',
-      status: 'pendente' 
-    }
-  });
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsSubmitting(true);
 
-  const onSubmit = async (data: DebtFormData) => {
     try {
+      const formData = new FormData(e.currentTarget);
+      const titleValue = formData.get("title") as string;
+
+      const parseNumber = (val: FormDataEntryValue | null) =>
+        Number(String(val).replace(",", "."));
+
+      const originalAmount = parseNumber(formData.get("originalAmount"));
+      const interestRate = parseNumber(formData.get("interestRate"));
+
+      // 🚀 Payload Supremo: Serve tanto para Criar quanto para Editar
       const payload = {
-        description: data.title,
-        originalAmount: data.originalAmount,
-        currentAmount: data.originalAmount,
-        interestRate: data.interestRate / 100,
-        remainingInstallments: data.remainingInstallments,
-        dueDate: new Date(data.dueDate).toISOString(),
-        debtType: data.debtType,
-        status: data.status 
+        description: titleValue, // O backend exige description
+        originalAmount: originalAmount,
+        // Se for edição, mantém o saldo atual. Se for novo, copia o valor original.
+        currentAmount: initialData
+          ? initialData.currentBalance
+          : originalAmount,
+        interestRate: interestRate,
+        remainingInstallments: parseNumber(
+          formData.get("remainingInstallments"),
+        ),
+        debtType: formData.get("debtType") as string,
+        dueDate: new Date(formData.get("dueDate") as string).toISOString(),
       };
 
-      if (isEditMode) {
-        // Fluxo de Atualização
-        const debtId = initialData._id || initialData.id;
-        await editDebt({ debtId, data: payload });
+      if (initialData) {
+        // 🚀 O Desbloqueio: Dispara a edição via PUT/PATCH pegando o ID correto
+        const debtId = initialData.id || (initialData as any)._id;
+        await api.put(`/debts/${debtId}`, payload);
       } else {
-        // Fluxo de Criação
-        await createDebt(payload as any);
+        // Fluxo normal de Criação
+        await api.post("/debts", payload);
       }
-      
-      reset(); 
-      if (onSuccessAction) onSuccessAction();
-      
+
+      onSuccessAction();
     } catch (error: any) {
-      const backendError = error.response?.data?.message;
-      const errorMessage = Array.isArray(backendError) ? backendError.join('\n- ') : backendError;
-      alert(`⚠️ Falha na operação:\n\n- ${errorMessage || 'Erro de conexão com a API'}`);
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        const mensagensDeErro = Array.isArray(error.response.data.message)
+          ? error.response.data.message.join("\n- ")
+          : error.response.data.message;
+
+        alert(`O Backend rejeitou os dados:\n- ${mensagensDeErro}`);
+        console.error("DETALHES DO DTO REJEITADO:", error.response.data);
+      } else {
+        alert("Erro do servidor. Verifique o console ou a aba Network.");
+        console.error(error);
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
+  // 🛡️ O Resgate do Título: Se o frontend não achar o 'title', ele busca o 'description'
+  const displayTitle =
+    initialData?.title || (initialData as any)?.description || "";
+
   return (
-    <div className="flex flex-col gap-6">
+    <div className="space-y-6 text-slate-800">
       <div>
-        <h3 className="text-2xl font-black text-zinc-900 tracking-tight">
-          {isEditMode ? 'Editar Título' : 'Novo Título'}
-        </h3>
-        <p className="text-zinc-500 text-sm mt-1">
-          {isEditMode ? 'Ajuste as informações da dívida selecionada.' : 'Cadastre a dívida com detalhes completos para a análise do motor Nexus.'}
+        <h2 className="text-2xl font-black tracking-tight">
+          {initialData ? "Editar Título da Dívida" : "Novo Título de Dívida"}
+        </h2>
+        <p className="text-slate-500 text-sm mt-1">
+          Insira os dados exatos do contrato.
         </p>
       </div>
-      
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Campo: Título */}
         <div>
-          <label className="block text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-2">Título / Credor</label>
-          <input type="text" {...register('title')} className="w-full bg-zinc-50 border border-zinc-200 text-zinc-900 rounded-xl px-4 py-3 font-medium focus:ring-2 focus:ring-indigo-500 outline-none transition-all" placeholder="Ex: Cartão Nubank" />
-          {errors.title && <span className="text-rose-500 text-xs mt-1.5 font-medium">{errors.title.message}</span>}
+          <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
+            Título / Credor
+          </label>
+          <input
+            required
+            type="text"
+            name="title"
+            defaultValue={displayTitle}
+            placeholder="Ex: Cartão Nubank"
+            className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all font-medium"
+          />
         </div>
 
+        {/* Linha dupla: Valor e Taxa */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-2">Tipo de Dívida</label>
-            <select {...register('debtType')} className="w-full bg-zinc-50 border border-zinc-200 text-zinc-900 rounded-xl px-4 py-3 font-medium focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
-              <option value="CREDIT_CARD">Cartão de Crédito</option>
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
+              Valor (R$)
+            </label>
+            <input
+              required
+              type="number"
+              step="0.01"
+              min="0.01"
+              name="originalAmount"
+              defaultValue={initialData?.originalAmount}
+              placeholder="3500.00"
+              className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none font-medium"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
+              Taxa (% a.m.)
+            </label>
+            <input
+              required
+              type="number"
+              step="0.01"
+              min="0"
+              name="interestRate"
+              defaultValue={initialData?.interestRate}
+              placeholder="4.99"
+              className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none font-medium text-rose-600"
+            />
+          </div>
+        </div>
+
+        {/* Linha dupla: Tipo da Dívida e Parcelas */}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
+              Tipo de Dívida
+            </label>
+            <select
+              name="debtType"
+              defaultValue={(initialData as any)?.debtType || "LOAN"}
+              className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none font-medium"
+            >
               <option value="LOAN">Empréstimo</option>
+              <option value="CREDIT_CARD">Cartão de Crédito</option>
+              <option value="FINANCING">Financiamento</option>
             </select>
           </div>
           <div>
-            <label className="block text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-2">Status</label>
-            <select {...register('status')} className="w-full bg-zinc-50 border border-zinc-200 text-zinc-900 rounded-xl px-4 py-3 font-medium focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
-              <option value="pendente">Pendente</option>
-              <option value="em negociação">Em Negociação</option>
-              <option value="pago">Pago</option>
-            </select>
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
+              Parcelas Restantes
+            </label>
+            <input
+              required
+              type="number"
+              step="1"
+              min="1"
+              name="remainingInstallments"
+              defaultValue={(initialData as any)?.remainingInstallments || 12}
+              className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none font-medium"
+            />
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-2">Valor Original (R$)</label>
-            <input type="number" step="0.01" {...register('originalAmount', { valueAsNumber: true })} className="w-full bg-zinc-50 border border-zinc-200 text-zinc-900 rounded-xl px-4 py-3 font-medium focus:ring-2 focus:ring-indigo-500 outline-none transition-all" placeholder="5000.00" />
-            {errors.originalAmount && <span className="text-rose-500 text-xs mt-1.5 font-medium">{errors.originalAmount.message}</span>}
-          </div>
-          <div>
-            <label className="block text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-2">Juros (% am)</label>
-            <input type="number" step="0.01" {...register('interestRate', { valueAsNumber: true })} className="w-full bg-zinc-50 border border-zinc-200 text-zinc-900 rounded-xl px-4 py-3 font-medium focus:ring-2 focus:ring-indigo-500 outline-none transition-all" placeholder="5.5" />
-            {errors.interestRate && <span className="text-rose-500 text-xs mt-1.5 font-medium">{errors.interestRate.message}</span>}
-          </div>
+        {/* Campo: Data de Vencimento */}
+        <div>
+          <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
+            Vencimento Inicial
+          </label>
+          <input
+            required
+            type="date"
+            name="dueDate"
+            defaultValue={
+              initialData?.dueDate?.split("T")[0] ||
+              new Date().toISOString().split("T")[0]
+            }
+            className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none font-medium"
+          />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-2">Parcelas Restantes</label>
-            <input type="number" {...register('remainingInstallments', { valueAsNumber: true })} className="w-full bg-zinc-50 border border-zinc-200 text-zinc-900 rounded-xl px-4 py-3 font-medium focus:ring-2 focus:ring-indigo-500 outline-none transition-all" placeholder="Ex: 12" />
-            {errors.remainingInstallments && <span className="text-rose-500 text-xs mt-1.5 font-medium">{errors.remainingInstallments.message}</span>}
-          </div>
-          <div>
-            <label className="block text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-2">Vencimento</label>
-            <input type="date" {...register('dueDate')} className="w-full bg-zinc-50 border border-zinc-200 text-zinc-900 rounded-xl px-4 py-3 font-medium focus:ring-2 focus:ring-indigo-500 outline-none transition-all" />
-            {errors.dueDate && <span className="text-rose-500 text-xs mt-1.5 font-medium">{errors.dueDate.message}</span>}
-          </div>
-        </div>
-
+        {/* Botão de Envio Dinâmico */}
         <button
+          disabled={isSubmitting}
           type="submit"
-          disabled={isPending}
-          className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3.5 rounded-xl font-bold transition-all shadow-lg shadow-indigo-600/20 disabled:opacity-50 disabled:cursor-not-allowed mt-2 active:scale-95 cursor-pointer"
+          className="w-full py-4 mt-2 bg-indigo-600 text-white font-black rounded-xl hover:bg-indigo-700 transition-all disabled:opacity-50 shadow-lg shadow-indigo-500/20 active:scale-95 cursor-pointer"
         >
-          {isPending ? 'Sincronizando...' : isEditMode ? 'Salvar Alterações' : 'Cadastrar Título'}
+          {isSubmitting
+            ? "Processando..."
+            : initialData
+              ? "Salvar Alterações"
+              : "Registrar no Radar"}
         </button>
       </form>
     </div>
   );
-};
+}

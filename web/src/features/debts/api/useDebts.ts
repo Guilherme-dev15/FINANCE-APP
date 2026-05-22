@@ -1,12 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { api } from '../../../config/api';
-import type { Debt, PrioritizedDebt, CreateDebtDTO } from '../types';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { api } from "../../../config/api";
+import type {
+  Debt,
+  PrioritizedDebt,
+  CreateDebtDTO,
+} from "../types/debts.types";
 
 // 🛡️ Dicionário de Chaves Oficial (Evita erros de digitação e garante que o cache seja invalidado na mosca)
 export const DEBTS_KEYS = {
-  all: ['debts'] as const,
-  prioritized: ['debts', 'prioritized'] as const,
+  all: ["debts"] as const,
+  prioritized: ["debts", "prioritized"] as const,
 };
 
 // ==========================================
@@ -17,7 +21,7 @@ export const useGetDebts = () => {
   return useQuery<Debt[], Error>({
     queryKey: DEBTS_KEYS.all,
     queryFn: async () => {
-      const { data } = await api.get<Debt[]>('/debts');
+      const { data } = await api.get<Debt[]>("/debts");
       return data;
     },
   });
@@ -27,7 +31,7 @@ export const useGetPrioritizedDebts = () => {
   return useQuery<PrioritizedDebt[], Error>({
     queryKey: DEBTS_KEYS.prioritized,
     queryFn: async () => {
-      const { data } = await api.get<PrioritizedDebt[]>('/debts/prioritized');
+      const { data } = await api.get<PrioritizedDebt[]>("/debts/prioritized");
       return data;
     },
   });
@@ -42,7 +46,7 @@ export const useCreateDebt = () => {
 
   return useMutation({
     mutationFn: async (newDebt: CreateDebtDTO) => {
-      const { data } = await api.post('/debts', newDebt);
+      const { data } = await api.post("/debts", newDebt);
       return data;
     },
     onSuccess: async () => {
@@ -72,8 +76,16 @@ export const usePayDebt = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ debtId, amount }: { debtId: string; amount: number }) => {
-      const response = await api.patch(`/debts/${debtId}/pay`, { paymentAmount: amount });
+    mutationFn: async ({
+      debtId,
+      amount,
+    }: {
+      debtId: string;
+      amount: number;
+    }) => {
+      const response = await api.patch(`/debts/${debtId}/pay`, {
+        paymentAmount: amount,
+      });
       return response.data;
     },
     onSuccess: async () => {
@@ -104,7 +116,7 @@ export const useEditDebt = () => {
 
 export const useGetDebtEvolution = (debtId: string | null) => {
   return useQuery({
-    queryKey: ['debt-evolution', debtId], // Esta chave é específica e atrelada ao ID
+    queryKey: ["debt-evolution", debtId], // Esta chave é específica e atrelada ao ID
     queryFn: async () => {
       const response = await api.get(`/debts/${debtId}/evolution`);
       return response.data;
@@ -115,10 +127,18 @@ export const useGetDebtEvolution = (debtId: string | null) => {
 
 export const useSimulatePayment = () => {
   return useMutation({
-    mutationFn: async ({ debtId, newPaymentAmount, newInterestRate }: { debtId: string; newPaymentAmount: number; newInterestRate: number }) => {
-      const response = await api.patch(`/debts/${debtId}/project-payment`, { 
-        newPaymentAmount, 
-        newInterestRate 
+    mutationFn: async ({
+      debtId,
+      newPaymentAmount,
+      newInterestRate,
+    }: {
+      debtId: string;
+      newPaymentAmount: number;
+      newInterestRate: number;
+    }) => {
+      const response = await api.patch(`/debts/${debtId}/project-payment`, {
+        newPaymentAmount,
+        newInterestRate,
       });
       return response.data;
     },

@@ -24,16 +24,22 @@ export class DebtsService {
       this.validateDebtData(debtData, debtType);
 
       const totalAmount = DebtCalculationService.calculateByDebtType(
-        debtType as any, // Bypass temporário caso o Assistant Service antigo reclame
+        debtType as any,
         debtData,
       );
       console.log('Valor total calculado:', totalAmount);
 
       return await this.prisma.debt.create({
         data: {
+          ...debtData, // Deixamos espalhar os dados (title, amount, etc)
           userId,
-          ...debtData,
           debtType,
+          status: DebtStatus.NA_GAVETA,
+          // 🛡️ Bônus de Resiliência: Se o DTO esperar 'title' mas o banco usar 'description'
+          description:
+            (debtData as any).title ||
+            (debtData as any).description ||
+            'Novo Título',
         } as unknown as Prisma.DebtUncheckedCreateInput,
       });
     } catch (error) {
@@ -125,12 +131,17 @@ export class DebtsService {
 
     const existing = await this.getDebtById(userId, debtId);
 
+    // Proteção para edição: Se vier status, converte pra MAIÚSCULO. Se não, mantém o atual.
+    const safeStatus = debtData.status
+      ? (String(debtData.status).toUpperCase() as DebtStatus)
+      : existing.status;
+
     return await this.prisma.debt.update({
       where: { id: existing.id },
       data: {
         ...debtData,
         debtType: debtData.debtType as DebtType,
-        status: debtData.status as unknown as DebtStatus, // Força a tipagem exata para o update
+        status: safeStatus, // 🚀 Status blindado
       },
     });
   }
