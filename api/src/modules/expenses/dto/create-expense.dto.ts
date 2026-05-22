@@ -1,16 +1,14 @@
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import {
   IsNotEmpty,
   IsNumber,
   IsString,
-  IsEnum,
   IsDateString,
   Min,
+  IsIn,
+  IsOptional, // 👈 Importação adicionada
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { TransactionType, ExpenseCategory } from '@prisma/client'; // 🛡️ Importado direto da fonte da verdade
+import { TransactionType, ExpenseCategory } from '@prisma/client';
 
 export class CreateExpenseDto {
   @ApiProperty({
@@ -31,7 +29,10 @@ export class CreateExpenseDto {
     enum: TransactionType,
     description: 'FIXED (Fixo/Recorrente) ou VARIABLE (Avulso)',
   })
-  @IsEnum(TransactionType, { message: 'O tipo deve ser FIXED ou VARIABLE.' })
+  // 🛡️ Vacina aplicada no TransactionType
+  @IsIn(Object.values(TransactionType), {
+    message: 'O tipo deve ser FIXED ou VARIABLE.',
+  })
   type!: TransactionType;
 
   @ApiProperty({
@@ -39,10 +40,12 @@ export class CreateExpenseDto {
     enum: ExpenseCategory,
     description: 'Nível de necessidade do gasto',
   })
-  @IsEnum(ExpenseCategory, {
+  // 🛡️ Vacina aplicada no ExpenseCategory + IsOptional adicionado
+  @IsOptional()
+  @IsIn(Object.values(ExpenseCategory), {
     message: 'A categoria deve ser ESSENTIAL, LIFESTYLE ou WASTE.',
   })
-  category!: ExpenseCategory;
+  category?: ExpenseCategory = undefined;
 
   @ApiProperty({ example: '2026-05-14', description: 'Data do gasto' })
   @IsDateString(

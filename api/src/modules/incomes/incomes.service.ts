@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/only-throw-error */
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '../../prisma/prisma.service'; // ⚠️ Ajuste o caminho se necessário
 import { CreateIncomeDto } from './dto/create-income.dto';
 import { UpdateIncomeDto } from './dto/update-income.dto';
 

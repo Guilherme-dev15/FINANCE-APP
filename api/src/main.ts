@@ -1,9 +1,8 @@
- 
 import * as dotenv from 'dotenv';
 dotenv.config(); // Carrega as variáveis de ambiente do arquivo .env
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
-import { AppModule } from './app.module';
+import { AppModule } from './modules/app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
@@ -12,7 +11,7 @@ async function bootstrap() {
   // 🛡️ 1. Habilitando o CORS (Essencial para o Vite se comunicar com o NestJS)
   app.enableCors({
     // Na sua máquina será localhost:5173, em produção será a URL da sua Vercel/Netlify
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173', 
+    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true, // Necessário se formos usar cookies JWT no futuro
   });
@@ -48,8 +47,12 @@ async function bootstrap() {
   SwaggerModule.setup('api/docs', app, document);
 
   await app.listen(process.env.PORT ?? 3000);
-  console.log(`🚀 Aplicação rodando em: http://localhost:${process.env.PORT ?? 3000}`);
-  console.log(`📚 Swagger disponível em: http://localhost:${process.env.PORT ?? 3000}/api/docs`);
+  console.log(
+    `🚀 Aplicação rodando em: http://localhost:${process.env.PORT ?? 3000}`,
+  );
+  console.log(
+    `📚 Swagger disponível em: http://localhost:${process.env.PORT ?? 3000}/api/docs`,
+  );
 }
 
 bootstrap().catch((err) => {
