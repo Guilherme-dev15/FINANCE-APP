@@ -9,13 +9,21 @@
     "target": "es2021",
     "sourceMap": true,
     "outDir": "./dist",
-    "baseUrl": "./",
+    "baseUrl": "./api/src",
     "incremental": true,
-    
+    "ignoreDeprecations": "6.0",
+    "useDefineForClassFields": false,
+
     // 🛡️ ADICIONE OU MUDE ESTAS DUAS LINHAS:
-    "esModuleInterop": true, 
+    "esModuleInterop": true,
     "skipLibCheck": true
   },
   // 🛡️ ADICIONE O ESLINT AQUI PARA O COMPILADOR IGNORÁ-LO:
-  "exclude": ["node_modules", "dist", "test", "**/*spec.ts", "eslint.config.mjs"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    "test",
+    "**/*spec.ts",
+    "eslint.config.mjs"
+  ]
 }

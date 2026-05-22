@@ -37,6 +37,15 @@ enum GoalStatus {
   COMPLETED
 }
 
+// 🚀 Enum para categorizar as entradas de caixa (SSOT)
+enum IncomeCategory {
+  SALARY
+  BUSINESS
+  FREELANCE
+  INVESTMENT
+  OTHER
+}
+
 model User {
   id        String    @id @default(uuid())
   email     String    @unique
@@ -83,10 +92,14 @@ model Income {
   
   description String
   amount      Decimal         @db.Decimal(12, 2)
-  type        TransactionType @default(FIXED)
+  type        TransactionType @default(FIXED)   // Mantém o seu controle de Fixo/Variável
+  category    IncomeCategory  @default(OTHER)   // Adiciona o controle de origem do dinheiro
   date        DateTime
   
   createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@map("incomes") // Padroniza o nome da tabela no plural no banco
 }
 
 model Expense {

@@ -5,11 +5,11 @@ export class RegisterDto {
   @ApiProperty({ example: 'user@example.com', description: 'Email do usuário' })
   @IsEmail()
   @IsNotEmpty()
-  email: string;
+  email!: string;
 
   @ApiProperty({ example: 'senha123', description: 'Senha do usuário' })
   @IsString()
   @IsNotEmpty()
   @MinLength(6, { message: 'A senha deve ter pelo menos 6 caracteres' })
-  password: string;
+  password!: string;
 }
