@@ -10,6 +10,7 @@ import { DebtsModule } from './modules/debts/debts.module';
 import { IncomeModule } from './modules/income/income.module';
 import { ExpenseModule } from './modules/expense/expense.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
+import { GoalsModule } from './goals/goals.module';
 
 @Module({
   imports: [
@@ -21,7 +22,8 @@ import { AnalyticsModule } from './modules/analytics/analytics.module';
     ProtectedModule,
     IncomeModule,
     ExpenseModule,
-    AnalyticsModule, 
+    AnalyticsModule,
+    GoalsModule, 
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -31,6 +31,12 @@ enum ExpenseCategory {
   WASTE
 }
 
+enum GoalStatus {
+  ACTIVE
+  PAUSED
+  COMPLETED
+}
+
 model User {
   id        String    @id @default(uuid())
   email     String    @unique
@@ -95,4 +101,20 @@ model Expense {
   date        DateTime
   
   createdAt   DateTime        @default(now())
+}
+
+model Goal {
+  id              String     @id @default(uuid())
+  userId          String     // Amarração de segurança com o dono
+  title           String
+  description     String?
+  targetAmount    Decimal    @db.Decimal(10, 2) // A meta financeira
+  currentAmount   Decimal    @default(0) @db.Decimal(10, 2) // O saldo atual do cofre
+  deadline        DateTime?  // Prazo opcional
+  status          GoalStatus @default(ACTIVE)
+
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  @@map("goals") // Nome limpo no banco de dados
 }

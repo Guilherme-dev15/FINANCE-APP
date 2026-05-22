@@ -1,12 +1,13 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { LoginPage } from "./features/auth/pages/LoginPage";
 import { PrioritizedDebtsDashboard } from "./features/debts/components/PrioritizedDebtsDashboard";
-import { CashflowDashboard } from "./features/analytics/components/CashflowDashboard"; // 🚀 NOVO: Import do motor de viabilidade
+import { CashflowDashboard } from "./features/analytics/components/CashflowDashboard";
 import { useAuthStore } from "./features/auth/store/useAuthStore";
 import { Header } from "./features/debts/components/Header";
 import type { JSX } from "react";
+import { GoalsDashboard } from "./features/goals/components/GoalsDashboard";
 
-// 🛡️ Guardião Autenticado (Mantido intacto - Excelente arquitetura)
+// 🛡️ Guardião Autenticado
 function PrivateRoute({ children }: { children: JSX.Element }) {
   const token = useAuthStore((state) => state.token);
 
@@ -30,10 +31,10 @@ export default function App() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
 
-        {/* Redirecionamento base: O usuário entra direto no termômetro financeiro */}
+        {/* Redirecionamento base */}
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
-        {/* 📊 NOVA ROTA: O Painel de Fluxo de Caixa Livre (Macro) */}
+        {/* 📊 Painel de Fluxo de Caixa Livre */}
         <Route
           path="/dashboard"
           element={
@@ -43,7 +44,17 @@ export default function App() {
           }
         />
 
-        {/* 🎯 ROTA DE AÇÃO: A "Estratégia Nexus" para renegociação e projeção (Micro) */}
+        {/* 💰 NOVA ROTA: Motor de Metas & Wealth Generation */}
+        <Route
+          path="/cofres"
+          element={
+            <PrivateRoute>
+              <GoalsDashboard />
+            </PrivateRoute>
+          }
+        />
+
+        {/* 🎯 ROTA DE AÇÃO: Estratégia Nexus */}
         <Route
           path="/estrategia"
           element={
